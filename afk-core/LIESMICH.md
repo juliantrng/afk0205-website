@@ -1,10 +1,16 @@
-# AFK Core – Version 0.5.1
+# AFK Core – Version 0.6.0
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.6.0
+
+- **Alarmierungen** lesen jetzt direkt die öffentliche Seite des KLFV (Quelle ist voreingestellt), nur Alarmierungen mit Beteiligung einer Feuerwehr des Abschnitts.
+- Abruf alle 10 statt 5 Minuten, Koordinaten werden nicht gespeichert.
+- Quellenangabe auch unter dem Shortcode `[afk_alarmierungen]`.
 
 ## Neu in 0.5.1
 
@@ -51,21 +57,23 @@ Shortcodes aber auch mit anderen Themes.
 
 ## Alarmierungen (KLFV)
 
-Der Server der Website holt alle 5 Minuten die Liste von alarmierungen.feuerwehr-ktn.at, behält
-nur Alarmierungen mit Beteiligung einer Wehr aus dem Abschnitt und speichert davon nur
-Zeit, Ereignis, Einheiten, Status und Bezirk (max. 200 Einträge, älter als die eingestellten Tage
-werden nicht angezeigt). Besucher verbinden sich **nicht** mit dem KLFV.
+Der Server der Website liest alle 10 Minuten die öffentliche Seite
+[alarmierungen.feuerwehr-ktn.at](https://alarmierungen.feuerwehr-ktn.at/), behält **nur Alarmierungen,
+bei denen eine Feuerwehr des Abschnitts dabei war**, und speichert davon nur Zeit, Ereignis,
+alarmierte Einheiten, Status und Bezirk – keine Koordinaten (max. 200 Einträge, älter als die
+eingestellten Tage werden verworfen). Besucher verbinden sich **nicht** mit dem KLFV.
+Überall, wo Alarmierungen erscheinen, steht die Quellenangabe (KLFV, mit Link).
 
 Einrichten:
-1. Einstellungen → Alarmierungen: **Quelle** = Datenadresse der KLFV-Seite eintragen, „Anzeigen“
-   anhaken, Tage (Standard 7) wählen, speichern, **Jetzt abrufen** – die Tabelle zeigt, was erkannt wurde.
-2. Heißt eine Wehr in der Alarmierung anders (z. B. „FF Döbriach-Seeboden“), beim Profil der Wehr
-   im Feld **Name in den Alarmierungen (KLFV)** eintragen.
-3. Seite „Alarmierungen“ anlegen und rechts die Vorlage **Alarmierungen** wählen.
+1. Einstellungen → Alarmierungen: „Anzeigen“ anhaken, Tage (Standard 7) wählen, speichern,
+   **Jetzt abrufen** – die Tabelle zeigt, was erkannt wurde. Die Quelle ist bereits eingetragen.
+2. Heißt eine Wehr in den Alarmierungen anders (z. B. die Betriebsfeuerwehr), beim Profil der Wehr
+   im Feld **Name in den Alarmierungen (KLFV)** die Schreibweise der KLFV-Seite eintragen.
+   „FF St.Peter ob Radenthein“ wird erkannt, „FF St.Peter/Spittal“ zählt nicht dazu.
+3. Seite „Alarmierungen“ anlegen, Vorlage **Alarmierungen** wählen und ins Menü aufnehmen.
 
-Vor dem Livegang den KLFV um Zustimmung zur Weiterverwendung bitten.
-Das genaue Datenformat ist noch nicht bestätigt; der Abruf erkennt übliche Feldnamen automatisch.
-Passt etwas nicht, lässt sich die Zuordnung per Filter `afk_alarm_normalisieren` anpassen.
+Der KLFV erlaubt die Anzeige mit Quellenangabe. Ändert der KLFV seine Seite, steht unter
+Einstellungen → Alarmierungen „Letzter Fehler: Datenblock nicht gefunden“ – dann melden.
 
 ## Datenschutz-Funktionen
 
@@ -102,4 +110,4 @@ Einstellungen und Inhalte bleiben bei Updates erhalten – sie liegen in der Dat
 - Anderes Repository: in `wp-config.php` `define( 'AFK_UPDATE_REPO', 'besitzer/repository' );`
 - Updates abschalten: `define( 'AFK_UPDATE_REPO', '' );`
 
-Beim Deaktivieren gehen keine Daten verloren; der 5-Minuten-Abruf wird beendet.
+Beim Deaktivieren gehen keine Daten verloren; der regelmäßige Abruf wird beendet.

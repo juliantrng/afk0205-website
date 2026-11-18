@@ -60,7 +60,10 @@ if ( $afk_alarme ) :
 					<li><span class="ticker__item"><span class="ticker__date"><?php echo esc_html( wp_date( 'd.m. · H:i', (int) $a['zeit'] ) ); ?></span><span class="ticker__text"><?php echo esc_html( $a['ereignis'] ); ?></span><?php if ( $a['eigene'] ) : ?><span class="ticker__units"><?php echo esc_html( implode( ', ', array_map( 'afk_ns_kurzname', $a['eigene'] ) ) ); ?></span><?php endif; ?></span></li>
 				<?php endforeach; ?>
 			</ul>
-			<?php if ( $afk_al_url ) : ?><a class="ticker__all" href="<?php echo esc_url( $afk_al_url ); ?>">Alle Alarmierungen</a><?php endif; ?>
+			<div class="ticker__end">
+				<?php if ( $afk_al_url ) : ?><a class="ticker__all" href="<?php echo esc_url( $afk_al_url ); ?>">Alle Alarmierungen</a><?php endif; ?>
+				<span class="ticker__quelle">Quelle: <a href="https://alarmierungen.feuerwehr-ktn.at/" rel="noopener" target="_blank">KLFV</a></span>
+			</div>
 		</div>
 	</section>
 	<?php

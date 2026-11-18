@@ -4,7 +4,7 @@
  * für die Feuerwehren des Abschnitts.
  *
  * Datenschutz-Prinzip:
- *  - Die Website holt die Daten SERVERSEITIG (alle 5 Minuten per WP-Cron) und speichert
+ *  - Die Website holt die Daten SERVERSEITIG (alle 10 Minuten per WP-Cron) und speichert
  *    eine gekürzte Kopie. Besucher laden nichts von fremden Servern, ihre IP-Adresse
  *    geht nicht an den KLFV.
  *  - Gespeichert und angezeigt werden nur: Zeitpunkt, Ereignis, alarmierte Einheiten,
@@ -20,6 +20,7 @@ defined( 'ABSPATH' ) || exit;
 
 const AFK_ALARM_OPTION = 'afk_alarm_einstellungen';
 const AFK_ALARM_DATA   = 'afk_alarm_daten';
+const AFK_ALARM_QUELLE = 'https://alarmierungen.feuerwehr-ktn.at/';
 
 /**
  * Einstellungen mit Standardwerten.
@@ -29,13 +30,17 @@ const AFK_ALARM_DATA   = 'afk_alarm_daten';
 function afk_alarm_einstellungen() {
 	$d = array(
 		'aktiv'   => 0,
-		'quelle'  => '',
+		'quelle'  => AFK_ALARM_QUELLE,
 		'tage'    => 7,
 		'bezirk'  => 'Spittal',
 		'zusatz'  => '',
 	);
 	$s = get_option( AFK_ALARM_OPTION, array() );
-	return wp_parse_args( is_array( $s ) ? $s : array(), $d );
+	$s = wp_parse_args( is_array( $s ) ? $s : array(), $d );
+	if ( '' === trim( (string) $s['quelle'] ) ) {
+		$s['quelle'] = AFK_ALARM_QUELLE;
+	}
+	return $s;
 }
 
 /* ---------------------------------------------------------------------
@@ -43,13 +48,13 @@ function afk_alarm_einstellungen() {
  * ------------------------------------------------------------------- */
 
 /**
- * Eigenes Cron-Intervall (5 Minuten).
+ * Eigenes Cron-Intervall (10 Minuten – aktuell genug, schont den Server des KLFV).
  *
  * @param array $s Intervalle.
  * @return array
  */
 function afk_alarm_cron_intervall( $s ) {
-	$s['afk_5min'] = array( 'interval' => 5 * MINUTE_IN_SECONDS, 'display' => 'Alle 5 Minuten' );
+	$s['afk_10min'] = array( 'interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Alle 10 Minuten' );
 	return $s;
 }
 add_filter( 'cron_schedules', 'afk_alarm_cron_intervall' );
@@ -60,8 +65,12 @@ add_filter( 'cron_schedules', 'afk_alarm_cron_intervall' );
 function afk_alarm_cron_pruefen() {
 	$e    = afk_alarm_einstellungen();
 	$next = wp_next_scheduled( 'afk_alarm_abruf' );
+	if ( $next && 'afk_10min' !== wp_get_schedule( 'afk_alarm_abruf' ) ) {
+		wp_clear_scheduled_hook( 'afk_alarm_abruf' ); // altes 5-Minuten-Intervall ersetzen
+		$next = false;
+	}
 	if ( $e['aktiv'] && $e['quelle'] && ! $next ) {
-		wp_schedule_event( time() + 30, 'afk_5min', 'afk_alarm_abruf' );
+		wp_schedule_event( time() + 30, 'afk_10min', 'afk_alarm_abruf' );
 	} elseif ( ( ! $e['aktiv'] || ! $e['quelle'] ) && $next ) {
 		wp_clear_scheduled_hook( 'afk_alarm_abruf' );
 	}
@@ -203,6 +212,55 @@ function afk_alarm_normalisieren( $json ) {
 }
 
 /**
+ * Format der Alarmierungsseite des KLFV: Die Seite enthält die Daten als
+ * `var cfg = '<Base64>'`, darin JSON `{"alerts": {"<Feuerwehr>": [ {id, ts, type, district,
+ * department, ended, …}, … ]}}` – je alarmierter Feuerwehr ein Eintrag, gleiche `id` = gleicher Einsatz.
+ * Koordinaten (`location`) werden bewusst NICHT übernommen.
+ *
+ * @param string $body HTML der Seite.
+ * @return array|null Einheitliche Liste (wie afk_alarm_normalisieren) oder null, wenn das Format nicht passt.
+ */
+function afk_alarm_klfv( $body ) {
+	if ( ! preg_match( "/var\\s+cfg\\s*=\\s*'([A-Za-z0-9+\\/=]+)'/", (string) $body, $m ) ) {
+		return null;
+	}
+	$daten = json_decode( (string) base64_decode( $m[1], true ), true );
+	if ( ! is_array( $daten ) || ! isset( $daten['alerts'] ) || ! is_array( $daten['alerts'] ) ) {
+		return null;
+	}
+	$einsaetze = array();
+	foreach ( $daten['alerts'] as $feuerwehr => $liste ) {
+		foreach ( (array) $liste as $a ) {
+			if ( ! is_array( $a ) || empty( $a['id'] ) || empty( $a['ts'] ) ) {
+				continue;
+			}
+			$id = (string) $a['id'];
+			if ( ! isset( $einsaetze[ $id ] ) ) {
+				$einsaetze[ $id ] = array(
+					'id'        => $id,
+					'zeit'      => (int) floor( (float) $a['ts'] / 1000 ),
+					'ereignis'  => sanitize_text_field( (string) ( $a['type'] ?? '' ) ),
+					'einheiten' => array(),
+					'bezirk'    => sanitize_text_field( (string) ( $a['district'] ?? '' ) ),
+					'beendet'   => true,
+				);
+			}
+			// Ein Einsatz gilt als beendet, sobald alle Meldungen beendet sind.
+			$einsaetze[ $id ]['beendet']    = $einsaetze[ $id ]['beendet'] && ! empty( $a['ended'] );
+			$einsaetze[ $id ]['einheiten'][] = sanitize_text_field( (string) ( ! empty( $a['department'] ) ? $a['department'] : $feuerwehr ) );
+		}
+	}
+	$out = array();
+	foreach ( $einsaetze as $e ) {
+		$e['einheiten'] = array_values( array_unique( array_filter( $e['einheiten'] ) ) );
+		$e['status']    = $e['beendet'] ? 'beendet' : 'laufend';
+		unset( $e['beendet'] );
+		$out[] = $e;
+	}
+	return $out;
+}
+
+/**
  * Kompatibilität: array_is_list ab PHP 8.1.
  *
  * @param array $a Array.
@@ -216,7 +274,7 @@ function array_is_list_compat( $a ) {
 }
 
 /**
- * Abrufen, filtern, speichern. Läuft per Cron alle 5 Minuten.
+ * Abrufen, filtern, speichern. Läuft per Cron alle 10 Minuten.
  *
  * @return true|WP_Error
  */
@@ -228,18 +286,23 @@ function afk_alarm_abrufen() {
 	$res = wp_safe_remote_get(
 		$e['quelle'],
 		array(
-			'timeout' => 15,
-			'headers' => array( 'Accept' => 'application/json' ),
+			'timeout' => 20,
+			'headers' => array( 'Accept' => 'text/html,application/json;q=0.9' ),
 		)
 	);
 	if ( is_wp_error( $res ) ) {
 		update_option( 'afk_alarm_fehler', $res->get_error_message(), false );
 		return $res;
 	}
-	$code = wp_remote_retrieve_response_code( $res );
-	$json = json_decode( wp_remote_retrieve_body( $res ), true );
-	if ( 200 !== (int) $code || null === $json ) {
-		$msg = 'Antwort ' . $code . ( null === $json ? ', kein gültiges JSON' : '' );
+	$code  = (int) wp_remote_retrieve_response_code( $res );
+	$body  = wp_remote_retrieve_body( $res );
+	$liste = 200 === $code ? afk_alarm_klfv( $body ) : null;
+	if ( null === $liste && 200 === $code ) {
+		$json  = json_decode( $body, true );
+		$liste = null === $json ? null : afk_alarm_normalisieren( $json );
+	}
+	if ( null === $liste ) {
+		$msg = 200 !== $code ? 'Antwort ' . $code : 'Datenblock nicht gefunden – hat sich die Alarmierungsseite geändert?';
 		update_option( 'afk_alarm_fehler', $msg, false );
 		return new WP_Error( 'afk_alarm', $msg );
 	}
@@ -252,7 +315,7 @@ function afk_alarm_abrufen() {
 		$alle[ $a['id'] ] = $a;
 	}
 
-	foreach ( afk_alarm_normalisieren( $json ) as $a ) {
+	foreach ( $liste as $a ) {
 		if ( ! $a['zeit'] || $a['zeit'] < $grenze ) {
 			continue;
 		}
@@ -372,7 +435,8 @@ function afk_sc_alarmierungen( $atts ) {
 		$out .= '<span class="afk-alarm__status' . ( afk_alarm_laufend( $a ) ? ' afk-alarm__status--laufend' : '' ) . '">' . esc_html( $a['status'] ) . '</span>';
 		$out .= '<span class="afk-alarm__einheiten">' . esc_html( implode( ', ', $a['eigene'] ) ) . '</span></li>';
 	}
-	return $out . '</ul>';
+	$out .= '</ul><p class="afk-alarme__quelle">Quelle: <a href="' . esc_url( AFK_ALARM_QUELLE ) . '" rel="noopener" target="_blank">Kärntner Landesfeuerwehrverband</a></p>';
+	return $out;
 }
 add_shortcode( 'afk_alarmierungen', 'afk_sc_alarmierungen' );
 
@@ -423,13 +487,13 @@ function afk_alarm_admin_page() {
 	?>
 	<div class="wrap">
 		<h1>Alarmierungen (Kärntner Landesfeuerwehrverband)</h1>
-		<p>Zeigt die öffentlichen Alarmierungen des KLFV für die Feuerwehren des Abschnitts auf der Website an. Die Website holt die Daten selbst alle 5 Minuten ab – Besucher verbinden sich dabei nicht mit dem KLFV. Angezeigt werden nur Zeitpunkt, Ereignis, alarmierte Einheiten und Status.</p>
+		<p>Zeigt die öffentlichen Alarmierungen des KLFV für die Feuerwehren des Abschnitts auf der Website an. Die Website holt die Daten selbst alle 10 Minuten ab – Besucher verbinden sich dabei nicht mit dem KLFV. Angezeigt werden nur Zeitpunkt, Ereignis, alarmierte Einheiten und Status.</p>
 		<?php if ( $meldung ) : ?><div class="notice notice-info"><p><?php echo esc_html( $meldung ); ?></p></div><?php endif; ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'afk_alarm_group' ); ?>
 			<table class="form-table" role="presentation">
 				<tr><th scope="row">Anzeigen</th><td><label><input type="checkbox" name="<?php echo esc_attr( $n ); ?>[aktiv]" value="1" <?php checked( 1, (int) $e['aktiv'] ); ?>> Alarmierungen auf der Website anzeigen</label></td></tr>
-				<tr><th scope="row"><label for="afk-a-q">Datenquelle (JSON-Adresse)</label></th><td><input type="url" class="large-text" id="afk-a-q" name="<?php echo esc_attr( $n ); ?>[quelle]" value="<?php echo esc_attr( $e['quelle'] ); ?>" placeholder="https://alarmierungen.feuerwehr-ktn.at/…"><p class="description">Die Adresse, von der die Alarmierungsseite ihre Daten lädt.</p></td></tr>
+				<tr><th scope="row"><label for="afk-a-q">Datenquelle</label></th><td><input type="url" class="large-text" id="afk-a-q" name="<?php echo esc_attr( $n ); ?>[quelle]" value="<?php echo esc_attr( $e['quelle'] ); ?>" placeholder="<?php echo esc_attr( AFK_ALARM_QUELLE ); ?>"><p class="description">Standard: die öffentliche Alarmierungsseite des KLFV. Angezeigt werden nur Alarmierungen, bei denen eine Feuerwehr des Abschnitts dabei war; auf der Website steht immer die Quellenangabe.</p></td></tr>
 				<tr><th scope="row"><label for="afk-a-t">Zeitraum</label></th><td><input type="number" min="1" max="30" id="afk-a-t" name="<?php echo esc_attr( $n ); ?>[tage]" value="<?php echo esc_attr( $e['tage'] ); ?>"> Tage <p class="description">Ältere Alarmierungen werden nicht gespeichert und nicht angezeigt.</p></td></tr>
 				<tr><th scope="row"><label for="afk-a-z">Weitere Einheiten</label></th><td><input type="text" class="regular-text" id="afk-a-z" name="<?php echo esc_attr( $n ); ?>[zusatz]" value="<?php echo esc_attr( $e['zusatz'] ); ?>" placeholder="z. B. AFK Millstatt-Radenthein"><p class="description">Zusätzliche Namen (durch Komma getrennt), die als „unser Abschnitt“ zählen. Die 12 Feuerwehren werden automatisch erkannt; abweichende Schreibweisen je Feuerwehr im Feld „Name in den Alarmierungen“.</p></td></tr>
 			</table>
