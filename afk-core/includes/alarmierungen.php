@@ -4,7 +4,7 @@
  * für die Feuerwehren des Abschnitts.
  *
  * Datenschutz-Prinzip:
- *  - Die Website holt die Daten SERVERSEITIG (alle 10 Minuten per WP-Cron) und speichert
+ *  - Die Website holt die Daten SERVERSEITIG (standardmäßig stündlich per WP-Cron) und speichert
  *    eine gekürzte Kopie. Besucher laden nichts von fremden Servern, ihre IP-Adresse
  *    geht nicht an den KLFV.
  *  - Gespeichert und angezeigt werden nur: Zeitpunkt, Ereignis, alarmierte Einheiten,
@@ -32,6 +32,7 @@ function afk_alarm_einstellungen() {
 		'aktiv'   => 0,
 		'quelle'  => AFK_ALARM_QUELLE,
 		'tage'    => 7,
+		'takt'    => 'hourly',
 		'bezirk'  => 'Spittal',
 		'zusatz'  => '',
 	);
@@ -48,13 +49,27 @@ function afk_alarm_einstellungen() {
  * ------------------------------------------------------------------- */
 
 /**
- * Eigenes Cron-Intervall (10 Minuten – aktuell genug, schont den Server des KLFV).
+ * Wählbare Abstände für den Abruf (Einstellungen → Alarmierungen).
+ *
+ * @return array Cron-Name => Bezeichnung
+ */
+function afk_alarm_takte() {
+	return array(
+		'hourly'    => 'Jede Stunde (empfohlen)',
+		'afk_30min' => 'Alle 30 Minuten',
+		'afk_10min' => 'Alle 10 Minuten',
+	);
+}
+
+/**
+ * Eigene Cron-Intervalle (10 und 30 Minuten; „hourly“ bringt WordPress mit).
  *
  * @param array $s Intervalle.
  * @return array
  */
 function afk_alarm_cron_intervall( $s ) {
 	$s['afk_10min'] = array( 'interval' => 10 * MINUTE_IN_SECONDS, 'display' => 'Alle 10 Minuten' );
+	$s['afk_30min'] = array( 'interval' => 30 * MINUTE_IN_SECONDS, 'display' => 'Alle 30 Minuten' );
 	return $s;
 }
 add_filter( 'cron_schedules', 'afk_alarm_cron_intervall' );
@@ -65,12 +80,13 @@ add_filter( 'cron_schedules', 'afk_alarm_cron_intervall' );
 function afk_alarm_cron_pruefen() {
 	$e    = afk_alarm_einstellungen();
 	$next = wp_next_scheduled( 'afk_alarm_abruf' );
-	if ( $next && 'afk_10min' !== wp_get_schedule( 'afk_alarm_abruf' ) ) {
-		wp_clear_scheduled_hook( 'afk_alarm_abruf' ); // altes 5-Minuten-Intervall ersetzen
+	$takt = isset( afk_alarm_takte()[ $e['takt'] ] ) ? $e['takt'] : 'hourly';
+	if ( $next && $takt !== wp_get_schedule( 'afk_alarm_abruf' ) ) {
+		wp_clear_scheduled_hook( 'afk_alarm_abruf' ); // Abstand wurde geändert
 		$next = false;
 	}
 	if ( $e['aktiv'] && $e['quelle'] && ! $next ) {
-		wp_schedule_event( time() + 30, 'afk_10min', 'afk_alarm_abruf' );
+		wp_schedule_event( time() + 30, $takt, 'afk_alarm_abruf' );
 	} elseif ( ( ! $e['aktiv'] || ! $e['quelle'] ) && $next ) {
 		wp_clear_scheduled_hook( 'afk_alarm_abruf' );
 	}
@@ -274,7 +290,7 @@ function array_is_list_compat( $a ) {
 }
 
 /**
- * Abrufen, filtern, speichern. Läuft per Cron alle 10 Minuten.
+ * Abrufen, filtern, speichern. Läuft per Cron im eingestellten Abstand (Standard: stündlich).
  *
  * @return true|WP_Error
  */
@@ -461,6 +477,7 @@ function afk_alarm_register_setting() {
 					'aktiv'  => empty( $in['aktiv'] ) ? 0 : 1,
 					'quelle' => isset( $in['quelle'] ) ? esc_url_raw( trim( $in['quelle'] ) ) : '',
 					'tage'   => isset( $in['tage'] ) ? min( 30, max( 1, absint( $in['tage'] ) ) ) : 7,
+					'takt'   => isset( $in['takt'], afk_alarm_takte()[ $in['takt'] ] ) ? $in['takt'] : 'hourly',
 					'bezirk' => isset( $in['bezirk'] ) ? sanitize_text_field( $in['bezirk'] ) : '',
 					'zusatz' => isset( $in['zusatz'] ) ? sanitize_text_field( $in['zusatz'] ) : '',
 				);
@@ -487,7 +504,7 @@ function afk_alarm_admin_page() {
 	?>
 	<div class="wrap">
 		<h1>Alarmierungen (Kärntner Landesfeuerwehrverband)</h1>
-		<p>Zeigt die öffentlichen Alarmierungen des KLFV für die Feuerwehren des Abschnitts auf der Website an. Die Website holt die Daten selbst alle 10 Minuten ab – Besucher verbinden sich dabei nicht mit dem KLFV. Angezeigt werden nur Zeitpunkt, Ereignis, alarmierte Einheiten und Status.</p>
+		<p>Zeigt die öffentlichen Alarmierungen des KLFV für die Feuerwehren des Abschnitts auf der Website an. Die Website holt die Daten selbst im eingestellten Abstand ab – Besucher verbinden sich dabei nicht mit dem KLFV. Angezeigt werden nur Zeitpunkt, Ereignis, alarmierte Einheiten und Status.</p>
 		<?php if ( $meldung ) : ?><div class="notice notice-info"><p><?php echo esc_html( $meldung ); ?></p></div><?php endif; ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'afk_alarm_group' ); ?>
@@ -495,6 +512,7 @@ function afk_alarm_admin_page() {
 				<tr><th scope="row">Anzeigen</th><td><label><input type="checkbox" name="<?php echo esc_attr( $n ); ?>[aktiv]" value="1" <?php checked( 1, (int) $e['aktiv'] ); ?>> Alarmierungen auf der Website anzeigen</label></td></tr>
 				<tr><th scope="row"><label for="afk-a-q">Datenquelle</label></th><td><input type="url" class="large-text" id="afk-a-q" name="<?php echo esc_attr( $n ); ?>[quelle]" value="<?php echo esc_attr( $e['quelle'] ); ?>" placeholder="<?php echo esc_attr( AFK_ALARM_QUELLE ); ?>"><p class="description">Standard: die öffentliche Alarmierungsseite des KLFV. Angezeigt werden nur Alarmierungen, bei denen eine Feuerwehr des Abschnitts dabei war; auf der Website steht immer die Quellenangabe.</p></td></tr>
 				<tr><th scope="row"><label for="afk-a-t">Zeitraum</label></th><td><input type="number" min="1" max="30" id="afk-a-t" name="<?php echo esc_attr( $n ); ?>[tage]" value="<?php echo esc_attr( $e['tage'] ); ?>"> Tage <p class="description">Ältere Alarmierungen werden nicht gespeichert und nicht angezeigt.</p></td></tr>
+				<tr><th scope="row"><label for="afk-a-k">Abruf</label></th><td><select id="afk-a-k" name="<?php echo esc_attr( $n ); ?>[takt]"><?php foreach ( afk_alarm_takte() as $k => $l ) : ?><option value="<?php echo esc_attr( $k ); ?>" <?php selected( $e['takt'], $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select><p class="description">Wie oft die Website beim KLFV nachsieht. „Jetzt abrufen“ unten geht jederzeit.</p></td></tr>
 				<tr><th scope="row"><label for="afk-a-z">Weitere Einheiten</label></th><td><input type="text" class="regular-text" id="afk-a-z" name="<?php echo esc_attr( $n ); ?>[zusatz]" value="<?php echo esc_attr( $e['zusatz'] ); ?>" placeholder="z. B. AFK Millstatt-Radenthein"><p class="description">Zusätzliche Namen (durch Komma getrennt), die als „unser Abschnitt“ zählen. Die 12 Feuerwehren werden automatisch erkannt; abweichende Schreibweisen je Feuerwehr im Feld „Name in den Alarmierungen“.</p></td></tr>
 			</table>
 			<?php submit_button( 'Speichern' ); ?>

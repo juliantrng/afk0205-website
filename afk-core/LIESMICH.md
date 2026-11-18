@@ -1,10 +1,14 @@
-# AFK Core – Version 0.6.0
+# AFK Core – Version 0.6.1
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.6.1
+
+- Alarmierungen werden standardmäßig **stündlich** abgerufen; unter Einstellungen → Alarmierungen wählbar (1 Stunde, 30 oder 10 Minuten).
 
 ## Neu in 0.6.0
 
@@ -57,7 +61,7 @@ Shortcodes aber auch mit anderen Themes.
 
 ## Alarmierungen (KLFV)
 
-Der Server der Website liest alle 10 Minuten die öffentliche Seite
+Der Server der Website liest jede Stunde (einstellbar: 30 oder 10 Minuten) die öffentliche Seite
 [alarmierungen.feuerwehr-ktn.at](https://alarmierungen.feuerwehr-ktn.at/), behält **nur Alarmierungen,
 bei denen eine Feuerwehr des Abschnitts dabei war**, und speichert davon nur Zeit, Ereignis,
 alarmierte Einheiten, Status und Bezirk – keine Koordinaten (max. 200 Einträge, älter als die
