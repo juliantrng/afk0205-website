@@ -18,7 +18,7 @@ foreach ( $afk_wehren as $w ) {
 
 while ( have_posts() ) :
 	the_post();
-	afk_ns_seitenkopf( get_the_title(), 'Abschnitt Millstatt – Radenthein', has_excerpt() ? get_the_excerpt() : count( $afk_wehren ) . ' Freiwillige Feuerwehren in ' . count( $afk_gruppe ) . ' Gemeinden – jede mit eigener Seite, Profil und allen Berichten.' );
+	afk_ns_seitenkopf( get_the_title(), 'Abschnitt Millstatt – Radenthein', has_excerpt() ? get_the_excerpt() : count( $afk_wehren ) . ' Feuerwehren in ' . count( $afk_gruppe ) . ' Gemeinden – jede mit eigener Seite, Profil und allen Berichten.' );
 	?>
 	<div class="wrap page-body">
 		<?php if ( trim( get_the_content() ) ) : ?>
