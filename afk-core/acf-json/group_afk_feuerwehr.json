@@ -1,0 +1,113 @@
+{
+    "key": "group_afk_feuerwehr",
+    "title": "Feuerwehr-Profil",
+    "fields": [
+        {
+            "key": "field_afk_ff_titelbild",
+            "label": "Titelbild",
+            "name": "afk_titelbild",
+            "type": "image",
+            "instructions": "Foto von Rüsthaus oder Mannschaft, Querformat, mind. 1600 px breit.",
+            "return_format": "id",
+            "preview_size": "medium",
+            "library": "all"
+        },
+        {
+            "key": "field_afk_ff_kommandant",
+            "label": "Kommandant",
+            "name": "afk_kommandant",
+            "type": "text",
+            "placeholder": "z. B. HBI Max Mustermann"
+        },
+        {
+            "key": "field_afk_ff_stellvertreter",
+            "label": "Kommandant-Stellvertreter",
+            "name": "afk_stellvertreter",
+            "type": "text"
+        },
+        {
+            "key": "field_afk_ff_mitglieder",
+            "label": "Mitglieder (aktiv)",
+            "name": "afk_mitglieder",
+            "type": "number",
+            "min": 0
+        },
+        {
+            "key": "field_afk_ff_gruendung",
+            "label": "Gegründet",
+            "name": "afk_gruendung",
+            "type": "number",
+            "min": 1800,
+            "max": 2100,
+            "placeholder": "z. B. 1891"
+        },
+        {
+            "key": "field_afk_ff_fahrzeuge",
+            "label": "Fahrzeuge",
+            "name": "afk_fahrzeuge",
+            "type": "textarea",
+            "instructions": "Ein Fahrzeug pro Zeile, z. B. „TLFA 4000“.",
+            "rows": 5,
+            "new_lines": ""
+        },
+        {
+            "key": "field_afk_ff_adresse",
+            "label": "Adresse Rüsthaus",
+            "name": "afk_adresse",
+            "type": "textarea",
+            "rows": 2,
+            "new_lines": "br"
+        },
+        {
+            "key": "field_afk_ff_website",
+            "label": "Website",
+            "name": "afk_website",
+            "type": "url"
+        },
+        {
+            "key": "field_afk_ff_facebook",
+            "label": "Facebook",
+            "name": "afk_facebook",
+            "type": "url"
+        },
+        {
+            "key": "field_afk_ff_instagram",
+            "label": "Instagram",
+            "name": "afk_instagram",
+            "type": "url"
+        },
+        {
+            "key": "field_afk_ff_mitmachen",
+            "label": "Kontakt „Mitglied werden“",
+            "name": "afk_mitmachen_kontakt",
+            "type": "email",
+            "instructions": "E-Mail-Adresse für Interessierte (Funktionsadresse, keine private). Leer lassen = Knopf wird nicht angezeigt."
+        },
+        {
+            "key": "field_afk_ff_alarmname",
+            "label": "Name in den Alarmierungen (KLFV)",
+            "name": "afk_alarmname",
+            "type": "text",
+            "instructions": "Nur ausfüllen, wenn die Feuerwehr in den Alarmierungen des Landesfeuerwehrverbands anders heißt, z. B. „FF MILLSTATT“. Mehrere Schreibweisen durch Komma trennen."
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "taxonomy",
+                "operator": "==",
+                "value": "feuerwehr"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Profildaten, die auf der Feuerwehr-Seite (/feuerwehr/…) angezeigt werden.",
+    "show_in_rest": 1,
+    "modified": 1795000000
+}

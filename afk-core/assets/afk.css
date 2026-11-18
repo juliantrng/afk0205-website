@@ -1,0 +1,83 @@
+/* AFK Core – Bausteine (Hinweisband, 2-Klick-Platzhalter, Shortcodes).
+   Das Theme „AFK Nachtschicht“ überschreibt Farben passend zum dunklen Design. */
+
+:root {
+	--afk-accent: #C10000;
+	--afk-accent-dark: #8A0000;
+	--afk-ink: #1B1C1E;
+	--afk-muted: #5E5B55;
+	--afk-line: #E2DED6;
+	--afk-surface: #FFFFFF;
+	--afk-radius: 6px;
+}
+
+/* ---------- Hinweisband ---------- */
+.afk-hinweis { --afk-h-bg: #E4E2DD; --afk-h-line: #C9C4BA; --afk-h-fg: #1B1C1E; background: var(--afk-h-bg); border-bottom: 1px solid var(--afk-h-line); color: var(--afk-h-fg); }
+.afk-hinweis--waldbrand { --afk-h-bg: #F9EA37; --afk-h-line: #D9C820; --afk-h-fg: #0E0F11; }
+.afk-hinweis--unwetter  { --afk-h-bg: #DCE8F5; --afk-h-line: #8DB0D6; --afk-h-fg: #123A63; }
+.afk-hinweis--sperre    { --afk-h-bg: #FFFFFF; --afk-h-line: #C10000; --afk-h-fg: #8A0000; }
+.afk-hinweis[hidden] { display: none; }
+.afk-hinweis__inner { max-width: 1280px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: nowrap; gap: 6px 14px; align-items: center; }
+.afk-hinweis__icon { flex: none; }
+.afk-hinweis__text { margin: 0; flex: 1 1 auto; min-width: 0; font-size: 16px; line-height: 1.45; }
+.afk-hinweis__link { color: inherit; font-weight: 700; text-decoration: underline; white-space: nowrap; flex: none; }
+.afk-hinweis__link:hover { color: inherit; }
+.afk-hinweis__close { width: 44px; height: 44px; border: 0; background: transparent; color: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 6px; padding: 0; margin: -6px -8px -6px auto; flex: none; }
+.afk-hinweis__close:hover, .afk-hinweis__close:focus-visible { background: rgba(0, 0, 0, .08); }
+@media (max-width: 600px) {
+	.afk-hinweis__inner { padding: 10px 16px; }
+	.afk-hinweis__icon { display: none; }
+	.afk-hinweis__inner { flex-wrap: wrap; }
+	.afk-hinweis__text { flex: 1 1 calc(100% - 60px); order: 1; }
+	.afk-hinweis__close { order: 2; }
+	.afk-hinweis__link { order: 3; }
+}
+
+/* ---------- Eingebettete Inhalte: erst nach Klick ---------- */
+.afk-embed { margin: 28px 0; border: 1px solid var(--afk-line); border-radius: var(--afk-radius); background: var(--afk-surface); aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; text-align: center; }
+.afk-embed--instagram, .afk-embed--twitter, .afk-embed--facebook, .afk-embed--extern { aspect-ratio: auto; min-height: 220px; }
+.afk-embed__hinweis { max-width: 520px; padding: 24px; }
+.afk-embed__titel { margin: 0 0 6px; font-weight: 700; font-size: 18px; }
+.afk-embed__text { margin: 0 0 16px; font-size: 15px; line-height: 1.5; color: var(--afk-muted); }
+.afk-embed__aktionen { margin: 0; display: flex; flex-wrap: wrap; gap: 10px 16px; justify-content: center; align-items: center; }
+.afk-embed__btn { min-height: 44px; padding: 0 20px; border: 0; border-radius: 4px; background: var(--afk-accent); color: #FFFFFF; font: inherit; font-weight: 700; cursor: pointer; }
+.afk-embed__btn:hover { background: var(--afk-accent-dark); }
+.afk-embed__link { font-size: 15px; }
+.afk-embed__geladen iframe { max-width: 100%; }
+
+/* ---------- Shortcode-Bausteine (für andere Themes) ---------- */
+.afk-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.afk-chips--scroll { flex-wrap: nowrap; overflow-x: auto; }
+.afk-chip { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--afk-accent); color: var(--afk-accent); font-weight: 700; font-size: 15px; text-decoration: none; white-space: nowrap; }
+.afk-chip--muted { border-color: var(--afk-line); color: var(--afk-ink); }
+.afk-chip--aktiv { background: var(--afk-accent); color: #FFFFFF; }
+.afk-box-title { margin: 0 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--afk-muted); }
+.afk-beteiligte { padding: 24px; border: 1px solid var(--afk-line); border-radius: var(--afk-radius); }
+.afk-beteiligte__hint, .afk-beteiligte__sub { font-size: 14px; color: var(--afk-muted); }
+.afk-byline { display: flex; flex-wrap: wrap; gap: 12px 32px; font-size: 15px; color: var(--afk-muted); }
+.afk-byline__item { display: flex; flex-direction: column; }
+.afk-byline__label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.afk-bildquelle { font-size: 15px; color: var(--afk-muted); }
+.afk-titelbild { display: block; width: 100%; height: auto; }
+.afk-profil__daten { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; }
+.afk-profil__daten dd { margin: 0; font-weight: 600; }
+.afk-btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 4px; background: var(--afk-accent); color: #FFFFFF; font-weight: 700; text-decoration: none; }
+.afk-tipps { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+.afk-tipp { display: flex; flex-direction: column; gap: 8px; padding: 20px; border: 1px solid var(--afk-line); border-radius: var(--afk-radius); text-decoration: none; color: var(--afk-ink); }
+.afk-tipp--aktuell { border-color: var(--afk-accent); }
+.afk-tipp__badge { align-self: flex-start; padding: 3px 8px; border-radius: 3px; background: var(--afk-accent); color: #FFFFFF; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.afk-tipp__titel { font-weight: 700; font-size: 20px; }
+.afk-ff-liste { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.afk-aufmacher { position: relative; display: flex; align-items: flex-end; min-height: 520px; background: #17191C; }
+.afk-aufmacher__bild { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
+.afk-aufmacher__kasten { position: relative; max-width: 760px; margin: 0 24px 48px; padding: 28px 32px; background: rgba(14, 15, 17, .86); border-left: 6px solid var(--afk-accent); color: #F2F0EB; }
+.afk-aufmacher__titel { margin: 0 0 12px; color: #FFFFFF; }
+.afk-aufmacher__btn { display: inline-flex; align-items: center; min-height: 48px; padding: 0 22px; border-radius: 4px; background: #F9EA37; color: #0E0F11; font-weight: 700; text-decoration: none; }
+
+/* ---------- Alarmierungen (Shortcode) ---------- */
+.afk-alarme { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--afk-line); }
+.afk-alarm { display: grid; grid-template-columns: 110px 1fr auto; gap: 4px 16px; padding: 12px 0; border-bottom: 1px solid var(--afk-line); }
+.afk-alarm__zeit { font-weight: 700; }
+.afk-alarm__einheiten { grid-column: 2 / -1; font-size: 15px; color: var(--afk-muted); }
+.afk-alarm__status { font-size: 13px; font-weight: 700; text-transform: uppercase; }
+.afk-alarm__status--laufend { color: var(--afk-accent); }

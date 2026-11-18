@@ -1,0 +1,50 @@
+{
+    "key": "group_afk_tipp",
+    "title": "Sicherheitstipp",
+    "fields": [
+        {
+            "key": "field_afk_tipp_monate",
+            "label": "„Jetzt aktuell“ in diesen Monaten",
+            "name": "afk_monate",
+            "type": "checkbox",
+            "instructions": "In den angehakten Monaten wird der Tipp auf der Startseite vorgereiht und markiert.",
+            "choices": {
+                "1": "Jänner",
+                "2": "Februar",
+                "3": "März",
+                "4": "April",
+                "5": "Mai",
+                "6": "Juni",
+                "7": "Juli",
+                "8": "August",
+                "9": "September",
+                "10": "Oktober",
+                "11": "November",
+                "12": "Dezember"
+            },
+            "layout": "horizontal",
+            "return_format": "value",
+            "toggle": 0,
+            "allow_custom": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "afk_tipp"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 1,
+    "modified": 1795000000
+}

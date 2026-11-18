@@ -1,0 +1,69 @@
+{
+    "key": "group_afk_bericht",
+    "title": "Bericht: Startseite, Verfasser & Bildquelle",
+    "fields": [
+        {
+            "key": "field_afk_aufmacher",
+            "label": "Oben auf der Startseite",
+            "name": "afk_aufmacher",
+            "type": "true_false",
+            "instructions": "Zeigt diesen Bericht 14 Tage lang groß oben auf der Startseite. Ohne Markierung steht dort automatisch der neueste Bericht. Es ist immer nur ein Bericht markiert.",
+            "ui": 1,
+            "ui_on_text": "Ja",
+            "ui_off_text": "Nein",
+            "default_value": 0
+        },
+        {
+            "key": "field_afk_verfasser",
+            "label": "Bericht verfasst von",
+            "name": "afk_verfasser",
+            "type": "text",
+            "instructions": "Name der Person, die den Bericht geschrieben hat. Leer lassen = Name des WordPress-Kontos.",
+            "placeholder": "z. B. Fabian Nikolasch"
+        },
+        {
+            "key": "field_afk_verfasser_einheit",
+            "label": "Funktion / Feuerwehr des Verfassers",
+            "name": "afk_verfasser_einheit",
+            "type": "text",
+            "instructions": "Optional, erscheint hinter dem Namen.",
+            "placeholder": "z. B. ÖA-Team / FF Millstatt"
+        },
+        {
+            "key": "field_afk_bildquelle",
+            "label": "Bildquelle",
+            "name": "afk_bildquelle",
+            "type": "text",
+            "instructions": "Wer hat die Fotos gemacht bzw. stellt sie zur Verfügung?",
+            "placeholder": "z. B. FF Millstatt"
+        },
+        {
+            "key": "field_afk_weitere_kraefte",
+            "label": "Weitere beteiligte Kräfte",
+            "name": "afk_weitere_kraefte",
+            "type": "textarea",
+            "instructions": "Feuerwehren aus anderen Abschnitten und weitere Organisationen – eine pro Zeile (z. B. FF Spittal, Polizei, Rotes Kreuz). Die Feuerwehren unseres Abschnitts bitte rechts unter „Feuerwehren“ anhaken.",
+            "rows": 4,
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 1,
+    "modified": 1795000000
+}

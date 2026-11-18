@@ -1,0 +1,76 @@
+# Legt für Theme und Plugin automatisch ein Release an, sobald sich die Version ändert.
+# Ablauf: Version im Kopf von afk-core.php bzw. style.css erhöhen, "## Neu in <Version>"
+# in LIESMICH.md ergänzen, auf main pushen. WordPress zeigt das Update dann innerhalb
+# weniger Stunden im Dashboard an (sofort mit "Erneut prüfen").
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'afk-core/**'
+      - 'afk-nachtschicht/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - slug: afk-core
+            kopf: afk-core/afk-core.php
+            konst: "AFK_CORE_VERSION', '"
+            konst_datei: afk-core/afk-core.php
+          - slug: afk-nachtschicht
+            kopf: afk-nachtschicht/style.css
+            konst: "AFK_NS_VERSION', '"
+            konst_datei: afk-nachtschicht/functions.php
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version lesen
+        id: v
+        run: |
+          VERSION=$(grep -m1 -E '^\s*\*?\s*Version:' "${{ matrix.kopf }}" | sed -E 's/.*Version:\s*//' | tr -d '[:space:]')
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then echo "Ungültige Version: $VERSION"; exit 1; fi
+          if ! grep -qF "${{ matrix.konst }}$VERSION'" "${{ matrix.konst_datei }}"; then
+            echo "Version im Kopf ($VERSION) passt nicht zur Konstante in ${{ matrix.konst_datei }}"; exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=${{ matrix.slug }}-$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Gibt es das Release schon?
+        id: da
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.v.outputs.tag }}" >/dev/null 2>&1; then echo "ja=1" >> "$GITHUB_OUTPUT"; else echo "ja=0" >> "$GITHUB_OUTPUT"; fi
+
+      - name: PHP-Syntax prüfen
+        if: steps.da.outputs.ja == '0'
+        run: find "${{ matrix.slug }}" -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: ZIP und Änderungen
+        if: steps.da.outputs.ja == '0'
+        run: |
+          zip -qr "${{ matrix.slug }}.zip" "${{ matrix.slug }}" -x '*.DS_Store' '*/.git*'
+          awk -v v="${{ steps.v.outputs.version }}" '
+            $0 ~ "^## Neu in " v "$" {an=1; next}
+            an && /^## / {exit}
+            an {print}
+          ' "${{ matrix.slug }}/LIESMICH.md" > notes.md
+          [ -s notes.md ] || echo "Version ${{ steps.v.outputs.version }}" > notes.md
+          cat notes.md
+
+      - name: Release anlegen
+        if: steps.da.outputs.ja == '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.v.outputs.tag }}" "${{ matrix.slug }}.zip" \
+            --title "${{ matrix.slug }} ${{ steps.v.outputs.version }}" \
+            --notes-file notes.md --target "${{ github.sha }}"
