@@ -1,10 +1,15 @@
-# AFK Core – Version 0.6.1
+# AFK Core – Version 0.6.2
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.6.2
+
+- Betriebsfeuerwehr: In den KLFV-Alarmierungen heißt sie „BtF Veitsch-Radex“ – das ist jetzt als „Name in den Alarmierungen“ hinterlegt (nur wenn das Feld noch leer ist). Auf der Website bleibt der Name „BtF RHI Magnesita“.
+- Erkennung genauer: abweichende Schreibweisen zählen nur im Bezirk Spittal, genau gleiche Namen überall.
 
 ## Neu in 0.6.1
 
@@ -73,7 +78,8 @@ Einrichten:
    **Jetzt abrufen** – die Tabelle zeigt, was erkannt wurde. Die Quelle ist bereits eingetragen.
 2. Heißt eine Wehr in den Alarmierungen anders (z. B. die Betriebsfeuerwehr), beim Profil der Wehr
    im Feld **Name in den Alarmierungen (KLFV)** die Schreibweise der KLFV-Seite eintragen.
-   „FF St.Peter ob Radenthein“ wird erkannt, „FF St.Peter/Spittal“ zählt nicht dazu.
+   „FF St.Peter ob Radenthein“ wird erkannt, „FF St.Peter/Spittal“ zählt nicht dazu. Für die
+   Betriebsfeuerwehr ist „BtF Veitsch-Radex“ bereits eingetragen.
 3. Seite „Alarmierungen“ anlegen, Vorlage **Alarmierungen** wählen und ins Menü aufnehmen.
 
 Der KLFV erlaubt die Anzeige mit Quellenangabe. Ändert der KLFV seine Seite, steht unter

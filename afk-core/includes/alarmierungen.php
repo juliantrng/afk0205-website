@@ -336,14 +336,18 @@ function afk_alarm_abrufen() {
 			continue;
 		}
 		// Nur Alarmierungen mit Beteiligung des Abschnitts.
-		$treffer = array();
+		$treffer   = array();
+		$bezirk    = afk_alarm_norm( (string) $e['bezirk'] );
+		$im_bezirk = '' === $bezirk || '' === (string) $a['bezirk'] || false !== strpos( afk_alarm_norm( $a['bezirk'] ), $bezirk );
 		foreach ( $a['einheiten'] as $einheit ) {
 			$klein = afk_alarm_norm( $einheit );
 			$best  = null;
 			foreach ( $namen as $name => $term_id ) {
 				// Gleich, oder der Name kommt als ganzes Wort vor. Der längste Treffer gewinnt,
 				// damit „St. Peter ob Radenthein“ nicht als „Radenthein“ zählt.
-				if ( $klein === $name || preg_match( '/(^| )' . preg_quote( $name, '/' ) . '( |$)/u', $klein ) ) {
+				// Teiltreffer nur im eigenen Bezirk – genaue Treffer überall (Hilfe in Nachbarbezirken).
+				$teil = $klein !== $name && $im_bezirk && preg_match( '/(^| )' . preg_quote( $name, '/' ) . '( |$)/u', $klein );
+				if ( $klein === $name || $teil ) {
 					if ( null === $best || mb_strlen( $name ) > mb_strlen( $best ) ) {
 						$best = $name;
 					}

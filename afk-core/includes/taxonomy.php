@@ -121,14 +121,20 @@ function afk_seed_feuerwehren() {
  * vergebene Namen bleiben unberührt.
  */
 function afk_feuerwehren_migrieren() {
-	if ( (int) get_option( 'afk_feuerwehren_stand', 0 ) >= 1 ) {
+	$stand = (int) get_option( 'afk_feuerwehren_stand', 0 );
+	if ( $stand >= 2 ) {
 		return;
 	}
 	$btf = get_term_by( 'slug', 'btf-rhi-magnesita', 'feuerwehr' );
-	if ( $btf && 'BtF RHI Magnesita – Werk Radenthein' === $btf->name ) {
+	if ( $btf && $stand < 1 && 'BtF RHI Magnesita – Werk Radenthein' === $btf->name ) {
 		wp_update_term( $btf->term_id, 'feuerwehr', array( 'name' => 'BtF RHI Magnesita' ) );
 	}
-	update_option( 'afk_feuerwehren_stand', 1 );
+	// In den KLFV-Alarmierungen heißt die Betriebsfeuerwehr „BtF Veitsch-Radex“.
+	if ( $btf && '' === trim( (string) get_term_meta( $btf->term_id, 'afk_alarmname', true ) ) ) {
+		update_term_meta( $btf->term_id, 'afk_alarmname', 'BtF Veitsch-Radex' );
+		update_term_meta( $btf->term_id, '_afk_alarmname', 'field_afk_ff_alarmname' );
+	}
+	update_option( 'afk_feuerwehren_stand', 2 );
 }
 add_action( 'init', 'afk_feuerwehren_migrieren', 20 );
 
