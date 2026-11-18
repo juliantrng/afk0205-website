@@ -1,10 +1,14 @@
-# AFK Core – Version 0.5.0
+# AFK Core – Version 0.5.1
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.5.1
+
+- Betriebsfeuerwehr heißt jetzt **BtF RHI Magnesita** (bestehende Einträge werden automatisch umbenannt, sofern der Name nicht händisch geändert wurde).
 
 ## Neu in 0.5.0
 

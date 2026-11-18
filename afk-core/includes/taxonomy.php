@@ -61,7 +61,7 @@ function afk_feuerwehr_seed_data() {
 			array( 'FF Kaning', 'ff-kaning', 'https://www.feuerwehr-kaning.at' ),
 			array( 'FF St. Peter ob Radenthein', 'ff-st-peter-ob-radenthein', '' ),
 			array( 'FF Untertweng', 'ff-untertweng', 'https://www.ff-untertweng.at' ),
-			array( 'BtF RHI Magnesita – Werk Radenthein', 'btf-rhi-magnesita', '' ),
+			array( 'BtF RHI Magnesita', 'btf-rhi-magnesita', '' ),
 		),
 		'Millstatt'          => array(
 			array( 'FF Millstatt', 'ff-millstatt', 'https://www.ff-millstatt.at' ),
@@ -114,6 +114,23 @@ function afk_seed_feuerwehren() {
 		}
 	}
 }
+
+/**
+ * Einmalige Korrekturen an bestehenden Einträgen nach einem Update.
+ * Ändert nur Namen, die noch genau dem früheren Vorschlag entsprechen – händisch
+ * vergebene Namen bleiben unberührt.
+ */
+function afk_feuerwehren_migrieren() {
+	if ( (int) get_option( 'afk_feuerwehren_stand', 0 ) >= 1 ) {
+		return;
+	}
+	$btf = get_term_by( 'slug', 'btf-rhi-magnesita', 'feuerwehr' );
+	if ( $btf && 'BtF RHI Magnesita – Werk Radenthein' === $btf->name ) {
+		wp_update_term( $btf->term_id, 'feuerwehr', array( 'name' => 'BtF RHI Magnesita' ) );
+	}
+	update_option( 'afk_feuerwehren_stand', 1 );
+}
+add_action( 'init', 'afk_feuerwehren_migrieren', 20 );
 
 /**
  * Die Wehren eines Beitrags (ohne Gemeinde-Begriffe; wurde nur eine Gemeinde
