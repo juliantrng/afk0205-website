@@ -1,10 +1,14 @@
-# AFK Core – Version 0.6.2
+# AFK Core – Version 0.6.3
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.6.3
+
+- Update-Prüfung zuverlässiger: Ist die GitHub-Schnittstelle ausgelastet (bei Webhosting mit geteilter Server-Adresse häufig), werden neue Versionen über den Release-Feed erkannt.
 
 ## Neu in 0.6.2
 

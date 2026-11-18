@@ -86,22 +86,20 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				return empty( $cache['version'] ) ? null : $cache;
 			}
 
-			$res = wp_remote_get(
-				'https://api.github.com/repos/' . self::repo() . '/releases?per_page=30',
-				array(
-					'timeout' => 10,
-					'headers' => array( 'Accept' => 'application/vnd.github+json' ),
-				)
-			);
-			$code = wp_remote_retrieve_response_code( $res );
-			if ( is_wp_error( $res ) || 200 !== (int) $code ) {
-				// Bei Fehlern (offline, Rate-Limit) eine Stunde warten statt bei jedem Aufruf neu fragen.
+			$releases = $this->releases_api();
+			if ( null === $releases ) {
+				// API nicht erreichbar oder Limit erreicht (bei geteilten Server-Adressen häufig):
+				// Release-Feed von github.com hat keine solche Grenze.
+				$releases = $this->releases_feed();
+			}
+			if ( null === $releases ) {
+				// Beides fehlgeschlagen: eine Stunde warten statt bei jedem Aufruf neu fragen.
 				set_site_transient( $key, array(), HOUR_IN_SECONDS );
 				return null;
 			}
 
 			$treffer = array();
-			foreach ( (array) json_decode( wp_remote_retrieve_body( $res ), true ) as $rel ) {
+			foreach ( $releases as $rel ) {
 				if ( ! empty( $rel['draft'] ) || ! empty( $rel['prerelease'] ) ) {
 					continue;
 				}
@@ -134,6 +132,68 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			}
 			set_site_transient( $key, $treffer, self::CACHE_STUNDEN * HOUR_IN_SECONDS );
 			return $treffer ? $treffer : null;
+		}
+
+		/**
+		 * Releases über die GitHub-API.
+		 *
+		 * @return array|null
+		 */
+		private function releases_api() {
+			$res = wp_remote_get(
+				'https://api.github.com/repos/' . self::repo() . '/releases?per_page=30',
+				array(
+					'timeout' => 10,
+					'headers' => array( 'Accept' => 'application/vnd.github+json' ),
+				)
+			);
+			if ( is_wp_error( $res ) || 200 !== (int) wp_remote_retrieve_response_code( $res ) ) {
+				return null;
+			}
+			$json = json_decode( wp_remote_retrieve_body( $res ), true );
+			return is_array( $json ) ? $json : null;
+		}
+
+		/**
+		 * Releases über den Atom-Feed (https://github.com/<repo>/releases.atom), ohne Abfragelimit.
+		 * Liefert dieselbe Form wie die API; die ZIP-Adresse folgt dem festen Muster der Releases.
+		 *
+		 * @return array|null
+		 */
+		private function releases_feed() {
+			$res = wp_remote_get( 'https://github.com/' . self::repo() . '/releases.atom', array( 'timeout' => 10 ) );
+			if ( is_wp_error( $res ) || 200 !== (int) wp_remote_retrieve_response_code( $res ) ) {
+				return null;
+			}
+			$xml = wp_remote_retrieve_body( $res );
+			if ( ! preg_match_all( '#<entry>(.*?)</entry>#s', $xml, $eintraege ) ) {
+				return array();
+			}
+			$out = array();
+			foreach ( $eintraege[1] as $e ) {
+				if ( ! preg_match( '#/releases/tag/([^"/<>]+)"#', $e, $tag ) ) {
+					continue;
+				}
+				$tag   = rawurldecode( $tag[1] );
+				$datum = preg_match( '#<updated>([^<]+)</updated>#', $e, $u ) ? $u[1] : '';
+				$text  = preg_match( '#<content[^>]*>(.*?)</content>#s', $e, $c ) ? wp_strip_all_tags( html_entity_decode( $c[1], ENT_QUOTES, 'UTF-8' ) ) : '';
+				$basis = 'https://github.com/' . self::repo() . '/releases';
+				$out[] = array(
+					'tag_name'     => $tag,
+					'draft'        => false,
+					'prerelease'   => false,
+					'html_url'     => $basis . '/tag/' . rawurlencode( $tag ),
+					'published_at' => $datum,
+					'body'         => trim( $text ),
+					'assets'       => array(
+						array(
+							'name'                 => $this->slug . '.zip',
+							'browser_download_url' => $basis . '/download/' . rawurlencode( $tag ) . '/' . $this->slug . '.zip',
+						),
+					),
+				);
+			}
+			return $out;
 		}
 
 		/**
