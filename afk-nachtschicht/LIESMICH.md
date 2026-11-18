@@ -1,4 +1,4 @@
-# AFK Nachtschicht – Theme 1.2.3
+# AFK Nachtschicht – Theme 1.2.4
 
 Dunkles Theme für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein
 (Designrichtung „A – Nachtschicht“). Arbeitet mit dem Plugin **AFK Core** zusammen.
@@ -15,6 +15,10 @@ eingebunden – keine Verbindung zu Google.
    die Seiten laden dann aber größere Bilder.
 
 Das bisherige Theme (Hestia) bleibt installiert – zurückschalten geht jederzeit unter Design → Themes.
+
+## Neu in 1.2.4
+
+- Rote Leiste bei mittlerer Breite (Tablet, schmales Fenster): Alarmierungen in voller Breite unter der Überschrift, nichts mehr abgeschnitten.
 
 ## Neu in 1.2.3
 
