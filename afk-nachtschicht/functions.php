@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AFK_NS_VERSION', '1.2.2' );
+define( 'AFK_NS_VERSION', '1.2.3' );
 define( 'AFK_NS_DIR', get_template_directory() );
 define( 'AFK_NS_URL', get_template_directory_uri() );
 

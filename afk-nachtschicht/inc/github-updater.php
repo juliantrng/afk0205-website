@@ -206,15 +206,20 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
 				return $transient;
 			}
+			// Installierte Version aus WordPress' eigener Liste (liest die Dateien neu). Die Konstante im
+			// geladenen Code kann direkt nach einem Update noch die alte Version enthalten.
+			$schluessel  = 'plugin' === $this->typ ? $this->datei : $this->slug;
+			$installiert = ! empty( $transient->checked[ $schluessel ] ) ? (string) $transient->checked[ $schluessel ] : $this->version;
+
 			$rel = $this->neuestes();
-			$neu = $rel && version_compare( $rel['version'], $this->version, '>' );
+			$neu = $rel && version_compare( $rel['version'], $installiert, '>' );
 
 			if ( 'plugin' === $this->typ ) {
 				$eintrag = (object) array(
 					'id'          => $this->datei,
 					'slug'        => $this->slug,
 					'plugin'      => $this->datei,
-					'new_version' => $neu ? $rel['version'] : $this->version,
+					'new_version' => $neu ? $rel['version'] : $installiert,
 					'url'         => $rel ? $rel['url'] : '',
 					'package'     => $neu ? $rel['package'] : '',
 				);
@@ -227,7 +232,7 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			} else {
 				$eintrag = array(
 					'theme'       => $this->slug,
-					'new_version' => $neu ? $rel['version'] : $this->version,
+					'new_version' => $neu ? $rel['version'] : $installiert,
 					'url'         => $rel ? $rel['url'] : '',
 					'package'     => $neu ? $rel['package'] : '',
 				);
