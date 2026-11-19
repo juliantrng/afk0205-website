@@ -25,7 +25,8 @@ $afk_tg   = get_theme_mod( 'afk_telegram', '' );
 					<li><a href="<?php echo esc_url( afk_ns_feuerwehren_url() ); ?>">Feuerwehren</a></li>
 					<?php $afk_al = afk_ns_seite_mit_vorlage( 'page-alarmierungen.php' ); ?>
 					<?php if ( $afk_al ) : ?><li><a href="<?php echo esc_url( $afk_al ); ?>">Alarmierungen</a></li><?php endif; ?>
-					<?php if ( function_exists( 'tribe_get_events_link' ) ) : ?><li><a href="<?php echo esc_url( tribe_get_events_link() ); ?>">Termine</a></li><?php endif; ?>
+					<?php $afk_te = afk_ns_termine_url(); ?>
+					<?php if ( $afk_te ) : ?><li><a href="<?php echo esc_url( $afk_te ); ?>">Termine</a></li><?php endif; ?>
 				</ul>
 			</div>
 			<div>

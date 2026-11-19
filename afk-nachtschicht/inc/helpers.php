@@ -416,7 +416,9 @@ function afk_ns_menu_fallback() {
 		afk_ns_kat_url( 'einsatz' )  => 'Einsätze',
 		afk_ns_feuerwehren_url()     => 'Feuerwehren',
 	);
-	if ( function_exists( 'tribe_get_events_link' ) ) {
+	if ( afk_ns_termine_url() ) {
+		$items[ afk_ns_termine_url() ] = 'Termine';
+	} elseif ( function_exists( 'tribe_get_events_link' ) ) {
 		$items[ tribe_get_events_link() ] = 'Termine';
 	}
 	$items[ home_url( '/#mitmachen' ) ] = 'Mitmachen';
@@ -536,4 +538,63 @@ function afk_ns_berichtende_wehr( $wehren, $quelle ) {
 		}
 	}
 	return $best ? $best : $wehren[0];
+}
+
+/**
+ * Link zur Terminübersicht (Seite mit der Vorlage „Termine“).
+ *
+ * @return string '' wenn es keine gibt.
+ */
+function afk_ns_termine_url() {
+	return afk_ns_seite_mit_vorlage( 'page-termine.php' );
+}
+
+/**
+ * Gibt es das Termin-Tool (AFK Core ab 0.7)?
+ *
+ * @return bool
+ */
+function afk_ns_hat_termine() {
+	return function_exists( 'afk_termin_daten' ) && post_type_exists( 'afk_termin' );
+}
+
+/**
+ * Einen Termin als Listeneintrag ausgeben.
+ *
+ * @param int  $id       Termin.
+ * @param bool $ausfuehrlich Mit Art, Feuerwehren und Kalender-Link (Terminseite).
+ */
+function afk_ns_termin_zeile( $id, $ausfuehrlich = false ) {
+	$d      = afk_termin_daten( $id );
+	$vorbei = $d['bis'] && $d['bis'] < time();
+	$wehren = $ausfuehrlich ? get_the_terms( $id, 'feuerwehr' ) : array();
+	$meta   = array_filter( array( afk_termin_zeit_text( $id, true ), $d['ort'] ) );
+	?>
+	<li class="termin<?php echo $ausfuehrlich ? ' termin--gross' : ''; ?><?php echo $vorbei ? ' is-vorbei' : ''; ?>">
+		<div class="termin__date" aria-hidden="true">
+			<div class="termin__wday"><?php echo esc_html( wp_date( 'D', $d['start'] ) ); ?></div>
+			<div class="termin__day"><?php echo esc_html( wp_date( 'd', $d['start'] ) ); ?></div>
+			<div class="termin__mon"><?php echo esc_html( wp_date( $ausfuehrlich && $vorbei ? 'M Y' : 'M', $d['start'] ) ); ?></div>
+		</div>
+		<div class="termin__body">
+			<?php if ( $ausfuehrlich && $d['art_text'] ) : ?>
+				<div class="termin__art"><?php echo esc_html( $d['art_text'] ); ?></div>
+			<?php endif; ?>
+			<a class="termin__title" href="<?php echo esc_url( get_permalink( $id ) ); ?>"><span class="screen-reader-text"><?php echo esc_html( wp_date( 'j. F Y', $d['start'] ) ); ?>: </span><?php echo esc_html( get_the_title( $id ) ); ?></a>
+			<?php if ( $meta ) : ?>
+				<div class="termin__where"><?php echo esc_html( implode( ' · ', $meta ) ); ?></div>
+			<?php endif; ?>
+			<?php if ( $wehren && ! is_wp_error( $wehren ) ) : ?>
+				<div class="termin__ff">
+					<?php foreach ( $wehren as $w ) : ?>
+						<a class="chip chip--muted chip--link" href="<?php echo esc_url( get_term_link( $w ) ); ?>"><?php echo esc_html( $w->name ); ?></a>
+					<?php endforeach; ?>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php if ( $ausfuehrlich && ! $vorbei ) : ?>
+			<a class="termin__ics" href="<?php echo esc_url( afk_termin_ics_url( $id ) ); ?>" rel="nofollow">In den Kalender<span class="screen-reader-text">: <?php echo esc_html( get_the_title( $id ) ); ?></span></a>
+		<?php endif; ?>
+	</li>
+	<?php
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Suche: Berichte, Seiten und Sicherheitstipps.
+ * Suche: Berichte, Seiten, Sicherheitstipps und Termine.
  *
  * @package afk-nachtschicht
  */
@@ -36,6 +36,9 @@ $afk_s = get_search_query();
 					$afk_meta = trim( afk_ns_kat_label( get_the_ID() ) . ' · ' . get_the_date( 'd.m.Y' ), ' ·' );
 				} elseif ( 'afk_tipp' === $afk_typ ) {
 					$afk_meta = 'Sicherheitstipp';
+				} elseif ( 'afk_termin' === $afk_typ && afk_ns_hat_termine() ) {
+					$afk_d    = afk_termin_daten( get_the_ID() );
+					$afk_meta = 'Termin' . ( $afk_d['start'] ? ' · ' . wp_date( 'd.m.Y', $afk_d['start'] ) : '' );
 				} else {
 					$afk_meta = 'Seite';
 				}

@@ -1,10 +1,17 @@
-# AFK Core – Version 0.6.4
+# AFK Core – Version 0.7.0
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.7.0
+
+- **Termine** als eigenes Werkzeug statt Kalender-Plugin: Menü „Termine“ mit Beginn, Ende, ganztägig, Ort, Art, Link und veranstaltender Feuerwehr.
+- Jeder Termin als Kalenderdatei (.ics), alle Termine als Kalender-Abo (`/?afk_ics=alle`).
+- Werkzeuge → **Termine übernehmen**: übernimmt die Termine aus Modern Events Calendar (Titel, Text, Bild, Zeiten, Ort, Link).
+- Shortcode `[afk_termine anzahl="5" feuerwehr="ff-millstatt"]`.
 
 ## Neu in 0.6.4
 
@@ -71,6 +78,7 @@ Shortcodes aber auch mit anderen Themes.
 | Hinweisband (Waldbrand, Unwetter, Sperre) | Menü „Hinweisband“ – für alle Redakteure |
 | Sicherheitstipps + Monate „Jetzt aktuell“ | Menü „Sicherheitstipps“ |
 | Alarmierungen | Einstellungen → Alarmierungen (nur Administratoren) |
+| Termine | Menü „Termine“ – Übersicht auf der Seite mit der Vorlage **Termine** |
 
 ## Alarmierungen (KLFV)
 

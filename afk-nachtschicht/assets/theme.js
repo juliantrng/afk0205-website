@@ -69,4 +69,21 @@
 			}
 		});
 	});
+
+	// Link kopieren (z. B. Kalender-Abo)
+	document.querySelectorAll('[data-copy]').forEach(function (btn) {
+		btn.addEventListener('click', function () {
+			var text = btn.getAttribute('data-copy');
+			var fertig = function () {
+				var old = btn.textContent;
+				btn.textContent = 'Kopiert ✓';
+				setTimeout(function () { btn.textContent = old; }, 2000);
+			};
+			if (navigator.clipboard) {
+				navigator.clipboard.writeText(text).then(fertig, function () { window.prompt('Link kopieren:', text); });
+			} else {
+				window.prompt('Link kopieren:', text);
+			}
+		});
+	});
 })();

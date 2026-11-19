@@ -115,6 +115,24 @@ $afk_gemeinde = $afk_ist_wehr ? get_term( $afk_term->parent, 'feuerwehr' ) : nul
 <?php endif; ?>
 
 <?php
+$afk_te = afk_ns_hat_termine() ? afk_termine_naechste( 3, $afk_term->slug ) : array();
+if ( $afk_te ) :
+	$afk_te_url = afk_ns_termine_url();
+	?>
+	<section class="section section--tight-bottom" aria-labelledby="afk-te-h">
+		<div class="wrap">
+			<div class="section-head">
+				<h2 class="section-title section-title--sm" id="afk-te-h">Nächste Termine</h2>
+				<?php if ( $afk_te_url ) : ?><a class="more-link" href="<?php echo esc_url( add_query_arg( 'ff', $afk_term->slug, $afk_te_url ) ); ?>">Alle Termine</a><?php endif; ?>
+			</div>
+			<ul class="list">
+				<?php foreach ( $afk_te as $afk_t ) { afk_ns_termin_zeile( $afk_t ); } ?>
+			</ul>
+		</div>
+	</section>
+<?php endif; ?>
+
+<?php
 $afk_alarme = afk_ns_alarme( 5, $afk_ist_wehr ? (int) $afk_term->term_id : 0 );
 if ( $afk_alarme && $afk_ist_wehr ) :
 	?>

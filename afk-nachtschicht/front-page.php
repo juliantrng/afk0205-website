@@ -219,13 +219,8 @@ $afk_q = new WP_Query( $afk_args );
 <?php endif; ?>
 
 <?php
-/* ---------- Termine (The Events Calendar) & Sicherheitstipps ---------- */
-$afk_termine = function_exists( 'tribe_get_events' ) ? tribe_get_events(
-	array(
-		'posts_per_page' => 4,
-		'start_date'     => 'now',
-	)
-) : array();
+/* ---------- Termine & Sicherheitstipps ---------- */
+$afk_termine = afk_ns_hat_termine() ? afk_termine_naechste( 4 ) : array();
 $afk_tipps   = array();
 if ( get_theme_mod( 'afk_zeige_tipps', true ) && post_type_exists( 'afk_tipp' ) ) {
 	$afk_alle = get_posts(
@@ -254,28 +249,12 @@ if ( $afk_termine || $afk_tipps ) :
 				<div>
 					<div class="section-head">
 						<h2 class="section-title section-title--sm">Termine</h2>
-						<?php if ( function_exists( 'tribe_get_events_link' ) ) : ?>
-							<a class="more-link" href="<?php echo esc_url( tribe_get_events_link() ); ?>">Alle Termine</a>
+						<?php if ( afk_ns_termine_url() ) : ?>
+							<a class="more-link" href="<?php echo esc_url( afk_ns_termine_url() ); ?>">Alle Termine</a>
 						<?php endif; ?>
 					</div>
 					<ul class="list">
-						<?php foreach ( $afk_termine as $e ) : ?>
-							<?php
-							$afk_start = function_exists( 'tribe_get_start_date' ) ? tribe_get_start_date( $e, false, 'U' ) : get_the_date( 'U', $e );
-							$afk_ort   = function_exists( 'tribe_get_venue' ) ? tribe_get_venue( $e->ID ) : '';
-							$afk_zeit  = function_exists( 'tribe_event_is_all_day' ) && tribe_event_is_all_day( $e->ID ) ? 'ganztägig' : wp_date( 'H:i', (int) $afk_start ) . ' Uhr';
-							?>
-							<li class="termin">
-								<div class="termin__date">
-									<div class="termin__day"><?php echo esc_html( wp_date( 'd', (int) $afk_start ) ); ?></div>
-									<div class="termin__mon"><?php echo esc_html( wp_date( 'M', (int) $afk_start ) ); ?></div>
-								</div>
-								<div>
-									<a class="termin__title" href="<?php echo esc_url( get_permalink( $e ) ); ?>"><?php echo esc_html( get_the_title( $e ) ); ?></a>
-									<div class="termin__where"><?php echo esc_html( trim( $afk_ort . ( $afk_ort ? ' · ' : '' ) . $afk_zeit ) ); ?></div>
-								</div>
-							</li>
-						<?php endforeach; ?>
+						<?php foreach ( $afk_termine as $afk_tid ) { afk_ns_termin_zeile( $afk_tid ); } ?>
 					</ul>
 				</div>
 			<?php endif; ?>

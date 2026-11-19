@@ -1,0 +1,90 @@
+{
+    "key": "group_afk_termin",
+    "title": "Termin",
+    "fields": [
+        {
+            "key": "field_afk_termin_beginn",
+            "label": "Beginn",
+            "name": "afk_beginn",
+            "type": "date_time_picker",
+            "instructions": "Datum und Uhrzeit des Beginns.",
+            "required": 1,
+            "display_format": "d.m.Y H:i",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 1,
+            "wrapper": { "width": "40" }
+        },
+        {
+            "key": "field_afk_termin_ende",
+            "label": "Ende",
+            "name": "afk_ende",
+            "type": "date_time_picker",
+            "instructions": "Optional. Bei mehrtägigen Terminen das letzte Datum.",
+            "required": 0,
+            "display_format": "d.m.Y H:i",
+            "return_format": "Y-m-d H:i:s",
+            "first_day": 1,
+            "wrapper": { "width": "40" }
+        },
+        {
+            "key": "field_afk_termin_ganztaegig",
+            "label": "Ganztägig",
+            "name": "afk_ganztaegig",
+            "type": "true_false",
+            "instructions": "Uhrzeiten werden dann nicht angezeigt.",
+            "ui": 1,
+            "default_value": 0,
+            "wrapper": { "width": "20" }
+        },
+        {
+            "key": "field_afk_termin_ort",
+            "label": "Ort",
+            "name": "afk_ort",
+            "type": "text",
+            "instructions": "z. B. „Rüsthaus Döbriach“ oder „Festplatz Millstatt, Seestraße“.",
+            "wrapper": { "width": "60" }
+        },
+        {
+            "key": "field_afk_termin_art",
+            "label": "Art",
+            "name": "afk_art",
+            "type": "select",
+            "choices": {
+                "veranstaltung": "Veranstaltung / Fest",
+                "uebung": "Öffentliche Übung",
+                "bewerb": "Bewerb",
+                "versammlung": "Versammlung",
+                "ausbildung": "Ausbildung / Kurs",
+                "sonstiges": "Sonstiges"
+            },
+            "default_value": "veranstaltung",
+            "return_format": "value",
+            "ui": 0,
+            "wrapper": { "width": "40" }
+        },
+        {
+            "key": "field_afk_termin_link",
+            "label": "Weiterer Link",
+            "name": "afk_link",
+            "type": "url",
+            "instructions": "Optional, z. B. Anmeldung oder Plakat.",
+            "wrapper": { "width": "100" }
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "afk_termin"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "acf_after_title",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "active": true,
+    "show_in_rest": 1
+}

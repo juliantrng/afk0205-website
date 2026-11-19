@@ -17,7 +17,7 @@ function afk_ns_pre_get_posts( $q ) {
 		return;
 	}
 	if ( $q->is_search() ) {
-		$q->set( 'post_type', array( 'post', 'page', 'afk_tipp' ) );
+		$q->set( 'post_type', array( 'post', 'page', 'afk_tipp', 'afk_termin' ) );
 		$q->set( 'posts_per_page', 12 );
 		return;
 	}
