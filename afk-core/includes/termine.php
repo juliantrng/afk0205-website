@@ -504,7 +504,10 @@ function afk_mec_uebernehmen() {
 		if ( $loc > 1 ) {
 			$name = $wpdb->get_var( $wpdb->prepare( "SELECT name FROM {$wpdb->terms} WHERE term_id = %d", $loc ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$adr  = get_term_meta( $loc, 'address', true );
-			$ort  = trim( (string) $name . ( $adr && false === strpos( (string) $name, (string) $adr ) ? ', ' . $adr : '' ) );
+			if ( preg_match( '/^(Name des Veranstaltungsorts|Venue Name|Location Name)$/i', trim( (string) $name ) ) ) {
+				$name = ''; // Platzhalter aus MEC
+			}
+			$ort = trim( (string) $name . ( $adr && false === strpos( (string) $name, (string) $adr ) ? ', ' . $adr : '' ), ', ' );
 		}
 		$neu_id = wp_insert_post(
 			array(
