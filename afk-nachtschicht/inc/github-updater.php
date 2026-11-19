@@ -50,11 +50,15 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			if ( '' === self::repo() ) {
 				return;
 			}
+			// Beim Speichern UND beim Lesen der Update-Liste eintragen, jeweils ganz zum Schluss:
+			// manche Plugins mit eigenem Update-Mechanismus ersetzen die Liste und verwerfen fremde Einträge.
 			if ( 'plugin' === $this->typ ) {
-				add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'pruefen' ) );
+				add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
+				add_filter( 'site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
 				add_filter( 'plugins_api', array( $this, 'info' ), 20, 3 );
 			} else {
-				add_filter( 'pre_set_site_transient_update_themes', array( $this, 'pruefen' ) );
+				add_filter( 'pre_set_site_transient_update_themes', array( $this, 'pruefen' ), 999 );
+				add_filter( 'site_transient_update_themes', array( $this, 'pruefen' ), 999 );
 			}
 			add_action( 'upgrader_process_complete', array( $this, 'cache_leeren' ), 10, 0 );
 		}
@@ -78,8 +82,10 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 		public function neuestes() {
 			$key = 'afk_gh_' . $this->slug;
 			// „Erneut prüfen“ unter Dashboard → Aktualisierungen umgeht den Zwischenspeicher.
-			if ( is_admin() && isset( $_GET['force-check'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				delete_site_transient( $key );
+			static $geleert = array();
+			if ( is_admin() && isset( $_GET['force-check'] ) && empty( $geleert[ $key ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+				delete_site_transient( $key ); // einmal pro Aufruf
+				$geleert[ $key ] = true;
 			}
 			$cache = get_site_transient( $key );
 			if ( is_array( $cache ) ) {
@@ -203,7 +209,7 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 		 * @return object
 		 */
 		public function pruefen( $transient ) {
-			if ( ! is_object( $transient ) || empty( $transient->checked ) ) {
+			if ( ! is_object( $transient ) || ( empty( $transient->checked ) && empty( $transient->last_checked ) ) ) {
 				return $transient;
 			}
 			// Installierte Version aus WordPress' eigener Liste (liest die Dateien neu). Die Konstante im
