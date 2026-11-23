@@ -152,6 +152,9 @@ function afk_hinweis_admin_page() {
 			<p><strong>● Ausgeschaltet</strong></p>
 		<?php endif; ?>
 
+		<?php afk_hinweis_vorlagen_box(); ?>
+
+		<h2>Hinweis</h2>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'afk_hinweis_group' ); ?>
 			<table class="form-table" role="presentation">
@@ -199,6 +202,7 @@ function afk_hinweis_admin_page() {
 			</table>
 			<?php submit_button( 'Hinweis speichern' ); ?>
 		</form>
+		<?php afk_hinweis_vorlagen_skript(); ?>
 	</div>
 	<?php
 }
