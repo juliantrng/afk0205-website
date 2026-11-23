@@ -1,10 +1,15 @@
-# AFK Core – Version 0.10.0
+# AFK Core – Version 0.11.0
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.11.0
+
+- **Eigene Statistik** statt Matomo: Dashboard → Statistik mit Seitenaufrufen pro Tag (7/30/90 Tage, 12 Monate), meistgelesenen Berichten, Herkunft (Suchmaschinen, Facebook, Instagram, Telegram, WhatsApp, andere Websites, direkt), Geräten (Handy/Tablet/Computer) und Berichten nach Feuerwehr. Dazu ein Kasten auf dem Dashboard und die Spalte „Aufrufe (30 T.)“ in der Beitragsliste.
+- Datensparsam: keine Cookies, keine IP-Adressen, kein externer Server – gespeichert werden nur Tagessummen. Angemeldete Redakteure und Bots zählen nicht. Funktioniert auch hinter Cloudflare/Seiten-Cache.
 
 ## Neu in 0.10.0
 
