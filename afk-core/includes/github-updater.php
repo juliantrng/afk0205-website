@@ -36,6 +36,8 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 		private $version;
 		/** @var string Anzeigename */
 		private $name;
+		/** @var array Ergebnis der letzten Abfragen (für die Statuszeile). */
+		private $protokoll = array();
 
 		/**
 		 * @param array $args typ, slug, datei, version, name.
@@ -61,6 +63,51 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				add_filter( 'site_transient_update_themes', array( $this, 'pruefen' ), 999 );
 			}
 			add_action( 'upgrader_process_complete', array( $this, 'cache_leeren' ), 10, 0 );
+			if ( 'plugin' === $this->typ ) {
+				add_filter( 'plugin_row_meta', array( $this, 'status_zeile' ), 10, 2 );
+			}
+		}
+
+		/**
+		 * Plugins-Liste: wann und wie zuletzt nach Updates gesucht wurde.
+		 *
+		 * @param array  $meta Links unter der Beschreibung.
+		 * @param string $file Plugin-Datei.
+		 * @return array
+		 */
+		public function status_zeile( $meta, $file ) {
+			if ( $file !== $this->datei ) {
+				return $meta;
+			}
+			$st = get_site_option( 'afk_gh_status', array() );
+			if ( ! empty( $st[ $this->slug ] ) ) {
+				$s      = $st[ $this->slug ];
+				$meta[] = esc_html(
+					sprintf(
+						'Update-Prüfung %s: %s',
+						wp_date( 'j.n. H:i', (int) $s['zeit'] ),
+						$s['version'] ? 'neueste Version ' . $s['version'] . ' (' . $s['weg'] . ')' : 'GitHub nicht erreichbar'
+					) . ( $s['fehler'] ? ' – ' . $s['fehler'] : '' )
+				);
+			}
+			return $meta;
+		}
+
+		/**
+		 * Ergebnis der Suche merken.
+		 *
+		 * @param string $weg     api|feed|datei|–.
+		 * @param string $version Gefundene Version.
+		 */
+		private function status_merken( $weg, $version ) {
+			$st                = get_site_option( 'afk_gh_status', array() );
+			$st[ $this->slug ] = array(
+				'zeit'    => time(),
+				'weg'     => array( 'api' => 'GitHub-API', 'feed' => 'Release-Feed', 'datei' => 'Versionsdatei' )[ $weg ] ?? $weg,
+				'version' => $version,
+				'fehler'  => implode( ', ', $this->protokoll ),
+			);
+			update_site_option( 'afk_gh_status', $st );
 		}
 
 		/**
@@ -92,15 +139,24 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				return empty( $cache['version'] ) ? null : $cache;
 			}
 
-			$releases = $this->releases_api();
+			$this->protokoll = array();
+			$weg             = 'api';
+			$releases        = $this->releases_api();
 			if ( null === $releases ) {
 				// API nicht erreichbar oder Limit erreicht (bei geteilten Server-Adressen häufig):
 				// Release-Feed von github.com hat keine solche Grenze.
+				$weg      = 'feed';
 				$releases = $this->releases_feed();
 			}
 			if ( null === $releases ) {
-				// Beides fehlgeschlagen: eine Stunde warten statt bei jedem Aufruf neu fragen.
+				// Letzter Weg: Versionsangabe direkt aus der Datei im Repository (raw.githubusercontent.com).
+				$weg      = 'datei';
+				$releases = $this->releases_datei();
+			}
+			if ( null === $releases ) {
+				// Alles fehlgeschlagen: eine Stunde warten statt bei jedem Aufruf neu fragen.
 				set_site_transient( $key, array(), HOUR_IN_SECONDS );
+				$this->status_merken( '–', '' );
 				return null;
 			}
 
@@ -137,6 +193,7 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				}
 			}
 			set_site_transient( $key, $treffer, self::CACHE_STUNDEN * HOUR_IN_SECONDS );
+			$this->status_merken( $weg, $treffer ? $treffer['version'] : '' );
 			return $treffer ? $treffer : null;
 		}
 
@@ -154,6 +211,7 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				)
 			);
 			if ( is_wp_error( $res ) || 200 !== (int) wp_remote_retrieve_response_code( $res ) ) {
+				$this->protokoll[] = 'API: ' . ( is_wp_error( $res ) ? $res->get_error_message() : 'HTTP ' . wp_remote_retrieve_response_code( $res ) );
 				return null;
 			}
 			$json = json_decode( wp_remote_retrieve_body( $res ), true );
@@ -169,6 +227,7 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 		private function releases_feed() {
 			$res = wp_remote_get( 'https://github.com/' . self::repo() . '/releases.atom', array( 'timeout' => 10 ) );
 			if ( is_wp_error( $res ) || 200 !== (int) wp_remote_retrieve_response_code( $res ) ) {
+				$this->protokoll[] = 'Feed: ' . ( is_wp_error( $res ) ? $res->get_error_message() : 'HTTP ' . wp_remote_retrieve_response_code( $res ) );
 				return null;
 			}
 			$xml = wp_remote_retrieve_body( $res );
@@ -200,6 +259,42 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				);
 			}
 			return $out;
+		}
+
+		/**
+		 * Version aus der Hauptdatei im Repository lesen (Plugin-Kopf bzw. style.css) und daraus ein
+		 * Release in derselben Form bauen. raw.githubusercontent.com hat kein Abfragelimit.
+		 *
+		 * @return array|null
+		 */
+		private function releases_datei() {
+			$datei = 'plugin' === $this->typ ? $this->datei : $this->slug . '/style.css';
+			$zweig = (string) apply_filters( 'afk_update_zweig', 'main' );
+			$res   = wp_remote_get( 'https://raw.githubusercontent.com/' . self::repo() . '/' . rawurlencode( $zweig ) . '/' . $datei, array( 'timeout' => 10 ) );
+			if ( is_wp_error( $res ) || 200 !== (int) wp_remote_retrieve_response_code( $res ) ) {
+				$this->protokoll[] = 'Datei: ' . ( is_wp_error( $res ) ? $res->get_error_message() : 'HTTP ' . wp_remote_retrieve_response_code( $res ) );
+				return null;
+			}
+			if ( ! preg_match( '/^[ \t\/*#@]*Version:\s*([0-9][0-9.]*)/mi', substr( wp_remote_retrieve_body( $res ), 0, 4096 ), $m ) ) {
+				$this->protokoll[] = 'Datei: keine Versionsangabe';
+				return null;
+			}
+			$tag   = $this->slug . '-' . $m[1];
+			$basis = 'https://github.com/' . self::repo() . '/releases';
+			return array(
+				array(
+					'tag_name'     => $tag,
+					'html_url'     => $basis . '/tag/' . rawurlencode( $tag ),
+					'published_at' => '',
+					'body'         => '',
+					'assets'       => array(
+						array(
+							'name'                 => $this->slug . '.zip',
+							'browser_download_url' => $basis . '/download/' . rawurlencode( $tag ) . '/' . $this->slug . '.zip',
+						),
+					),
+				),
+			);
 		}
 
 		/**
