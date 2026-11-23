@@ -56,12 +56,12 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			// manche Plugins mit eigenem Update-Mechanismus ersetzen die Liste und verwerfen fremde Einträge.
 			if ( 'plugin' === $this->typ ) {
 				add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
-				add_filter( 'site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
+				add_filter( 'site_transient_update_plugins', array( $this, 'pruefen_lesen' ), 999 );
 				add_filter( 'pre_site_transient_update_plugins', array( $this, 'pruefen_vorab' ), 999 );
 				add_filter( 'plugins_api', array( $this, 'info' ), 20, 3 );
 			} else {
 				add_filter( 'pre_set_site_transient_update_themes', array( $this, 'pruefen' ), 999 );
-				add_filter( 'site_transient_update_themes', array( $this, 'pruefen' ), 999 );
+				add_filter( 'site_transient_update_themes', array( $this, 'pruefen_lesen' ), 999 );
 				add_filter( 'pre_site_transient_update_themes', array( $this, 'pruefen_vorab' ), 999 );
 			}
 			add_action( 'upgrader_process_complete', array( $this, 'cache_leeren' ), 10, 0 );
@@ -96,7 +96,11 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 							if ( is_array( $f ) && $f[0] instanceof self ) {
 								continue;
 							}
-							$name    = is_array( $f ) ? ( is_object( $f[0] ) ? get_class( $f[0] ) : $f[0] ) . '::' . $f[1] : ( is_string( $f ) ? $f : 'Closure' );
+							$name = is_array( $f ) ? ( is_object( $f[0] ) ? get_class( $f[0] ) : $f[0] ) . '::' . $f[1] : ( is_string( $f ) ? $f : 'Closure' );
+							if ( $f instanceof Closure ) {
+								$r     = new ReflectionFunction( $f );
+								$name .= ' in ' . str_replace( wp_normalize_path( ABSPATH ), '', wp_normalize_path( (string) $r->getFileName() ) ) . ':' . $r->getStartLine();
+							}
 							$fremd[] = $hook . ' ' . $prio . ': ' . $name;
 						}
 					}
@@ -318,6 +322,28 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 					),
 				),
 			);
+		}
+
+		/**
+		 * Beim Lesen der Update-Liste: Ist sie leer (manche Plugins verwerfen sie beim Speichern),
+		 * eine neue anlegen, damit wenigstens unsere eigenen Updates erscheinen.
+		 *
+		 * @param mixed $transient Update-Liste.
+		 * @return mixed
+		 */
+		public function pruefen_lesen( $transient ) {
+			if ( ! is_object( $transient ) ) {
+				if ( ! is_admin() && ! wp_doing_cron() ) {
+					return $transient; // Im Frontend nichts anlegen.
+				}
+				$transient               = new stdClass();
+				$transient->last_checked = time();
+				$transient->checked      = array();
+				$transient->response     = array();
+				$transient->no_update    = array();
+				$transient->translations = array();
+			}
+			return $this->pruefen( $transient );
 		}
 
 		/**
