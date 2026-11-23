@@ -3,7 +3,7 @@ Theme Name:   AFK Nachtschicht
 Theme URI:    https://www.afk-millstatt-radenthein.at/
 Author:       AFK Millstatt – Radenthein, Öffentlichkeitsarbeit
 Description:  Dunkles Theme für das Abschnittsfeuerwehrkommando Millstatt – Radenthein. Arbeitet mit dem Plugin „AFK Core“ zusammen (Feuerwehren, Aufmacher, Hinweisband, Alarmierungen, Sicherheitstipps). Schriften lokal eingebunden, keine externen Dienste.
-Version:      1.4.0
+Version:      1.4.1
 Requires at least: 6.3
 Requires PHP: 7.4
 License:      GPL-2.0-or-later
@@ -621,7 +621,7 @@ a.ticker__item:hover .ticker__text { text-decoration: underline; }
 .lb-ausloeser { cursor: zoom-in; }
 img.lb-ausloeser:focus-visible { outline: 3px solid var(--c-yellow); outline-offset: 2px; }
 .lb-offen, .lb-offen body { overflow: hidden; }
-.lb { position: fixed; inset: 0; z-index: 9999; display: grid; grid-template-columns: 72px minmax(0, 1fr) 72px; grid-template-rows: auto minmax(0, 1fr); align-items: center; background: rgba(10, 11, 12, .96); color: #FFFFFF; padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
+.lb { position: fixed; inset: 0; z-index: 2147483000; display: grid; grid-template-columns: 72px minmax(0, 1fr) 72px; grid-template-rows: auto minmax(0, 1fr); align-items: center; background: rgba(10, 11, 12, .96); color: #FFFFFF; padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
 .lb[hidden] { display: none; }
 .lb__kopf { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 8px 24px; }
 .lb__zaehler { font-family: var(--f-display); font-size: 16px; letter-spacing: .08em; color: var(--c-muted); }
@@ -645,3 +645,4 @@ img.lb-ausloeser:focus-visible { outline: 3px solid var(--c-yellow); outline-off
 	.lb__text { font-size: 15px; }
 }
 @media print { .lb { display: none !important; } }
+.lb-offen #wpadminbar { display: none; }

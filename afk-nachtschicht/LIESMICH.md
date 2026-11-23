@@ -16,6 +16,10 @@ eingebunden – keine Verbindung zu Google.
 
 Das bisherige Theme (Hestia) bleibt installiert – zurückschalten geht jederzeit unter Design → Themes.
 
+## Neu in 1.4.1
+
+- Lightbox liegt jetzt über allem – auch über Cookie-Banner und WordPress-Werkzeugleiste.
+
 ## Neu in 1.4.0
 
 - **Eigene Lightbox** für Fotos in Berichten (ersetzt „Lightbox mit PhotoSwipe“): alle Fotos eines Berichts in einer Reihe, Zähler, Bildunterschrift, Pfeile, Tastatur (← → Esc), Wischen am Handy, nach unten wischen schließt. Ohne fremde Dateien.
