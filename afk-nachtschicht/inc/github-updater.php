@@ -298,19 +298,35 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 		}
 
 		/**
+		 * Installierte Version aus Plugin-Kopf bzw. style.css.
+		 *
+		 * @return string
+		 */
+		private function installierte_version() {
+			$datei = 'plugin' === $this->typ ? WP_PLUGIN_DIR . '/' . $this->datei : get_theme_root( $this->slug ) . '/' . $this->slug . '/style.css';
+			if ( is_readable( $datei ) ) {
+				$kopf = get_file_data( $datei, array( 'v' => 'Version' ) );
+				if ( ! empty( $kopf['v'] ) ) {
+					return (string) $kopf['v'];
+				}
+			}
+			return $this->version;
+		}
+
+		/**
 		 * Update-Information in die WordPress-Liste eintragen.
 		 *
 		 * @param object $transient update_plugins / update_themes.
 		 * @return object
 		 */
 		public function pruefen( $transient ) {
-			if ( ! is_object( $transient ) || ( empty( $transient->checked ) && empty( $transient->last_checked ) ) ) {
+			if ( ! is_object( $transient ) ) {
 				return $transient;
 			}
-			// Installierte Version aus WordPress' eigener Liste (liest die Dateien neu). Die Konstante im
-			// geladenen Code kann direkt nach einem Update noch die alte Version enthalten.
-			$schluessel  = 'plugin' === $this->typ ? $this->datei : $this->slug;
-			$installiert = ! empty( $transient->checked[ $schluessel ] ) ? (string) $transient->checked[ $schluessel ] : $this->version;
+			// Installierte Version direkt aus der Datei lesen: Die Konstante im geladenen Code kann direkt
+			// nach einem Update noch die alte Version enthalten, und manche Plugins liefern eine Update-Liste
+			// ohne WordPress' eigene Versionsliste ($transient->checked).
+			$installiert = $this->installierte_version();
 
 			$rel = $this->neuestes();
 			$neu = $rel && version_compare( $rel['version'], $installiert, '>' );
