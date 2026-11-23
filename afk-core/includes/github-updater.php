@@ -57,10 +57,12 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 			if ( 'plugin' === $this->typ ) {
 				add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
 				add_filter( 'site_transient_update_plugins', array( $this, 'pruefen' ), 999 );
+				add_filter( 'pre_site_transient_update_plugins', array( $this, 'pruefen_vorab' ), 999 );
 				add_filter( 'plugins_api', array( $this, 'info' ), 20, 3 );
 			} else {
 				add_filter( 'pre_set_site_transient_update_themes', array( $this, 'pruefen' ), 999 );
 				add_filter( 'site_transient_update_themes', array( $this, 'pruefen' ), 999 );
+				add_filter( 'pre_site_transient_update_themes', array( $this, 'pruefen_vorab' ), 999 );
 			}
 			add_action( 'upgrader_process_complete', array( $this, 'cache_leeren' ), 10, 0 );
 			if ( 'plugin' === $this->typ ) {
@@ -80,6 +82,27 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 				return $meta;
 			}
 			$st = get_site_option( 'afk_gh_status', array() );
+			if ( empty( $st[ $this->slug ] ) ) {
+				// Diagnose: Wer greift sonst noch in die Update-Liste ein?
+				global $wp_filter;
+				$fremd = array();
+				foreach ( array( 'pre_site_transient_update_plugins', 'site_transient_update_plugins', 'pre_set_site_transient_update_plugins' ) as $hook ) {
+					if ( empty( $wp_filter[ $hook ] ) ) {
+						continue;
+					}
+					foreach ( $wp_filter[ $hook ]->callbacks as $prio => $cbs ) {
+						foreach ( $cbs as $cb ) {
+							$f = $cb['function'];
+							if ( is_array( $f ) && $f[0] instanceof self ) {
+								continue;
+							}
+							$name    = is_array( $f ) ? ( is_object( $f[0] ) ? get_class( $f[0] ) : $f[0] ) . '::' . $f[1] : ( is_string( $f ) ? $f : 'Closure' );
+							$fremd[] = $hook . ' ' . $prio . ': ' . $name;
+						}
+					}
+				}
+				$meta[] = esc_html( 'Update-Prüfung noch nicht gelaufen' . ( $fremd ? ' – andere Filter: ' . implode( '; ', $fremd ) : '' ) );
+			}
 			if ( ! empty( $st[ $this->slug ] ) ) {
 				$s      = $st[ $this->slug ];
 				$meta[] = esc_html(
@@ -295,6 +318,17 @@ if ( ! class_exists( 'AFK_GitHub_Updater' ) ) {
 					),
 				),
 			);
+		}
+
+		/**
+		 * Manche Plugins/Hoster liefern die Update-Liste schon vorab (pre_site_transient_…). Dann läuft
+		 * der normale Filter nicht – deshalb auch hier eintragen.
+		 *
+		 * @param mixed $pre Vorab-Wert oder false.
+		 * @return mixed
+		 */
+		public function pruefen_vorab( $pre ) {
+			return is_object( $pre ) ? $this->pruefen( $pre ) : $pre;
 		}
 
 		/**
