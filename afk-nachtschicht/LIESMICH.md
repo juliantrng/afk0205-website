@@ -16,6 +16,11 @@ eingebunden – keine Verbindung zu Google.
 
 Das bisherige Theme (Hestia) bleibt installiert – zurückschalten geht jederzeit unter Design → Themes.
 
+## Neu in 1.4.0
+
+- **Eigene Lightbox** für Fotos in Berichten (ersetzt „Lightbox mit PhotoSwipe“): alle Fotos eines Berichts in einer Reihe, Zähler, Bildunterschrift, Pfeile, Tastatur (← → Esc), Wischen am Handy, nach unten wischen schließt. Ohne fremde Dateien.
+- **Anmeldeseite** im Stil der Website (ersetzt LoginPress): dunkel, Logo, rote Kante, rote Schaltfläche; Logo führt zur Website.
+
 ## Neu in 1.3.4
 
 - Kennzahl auf der Startseite: „Berichte seit …“ (ganzes Archiv) statt „Berichte im Jahr …“, solange keine Mitgliederzahlen eingetragen sind.

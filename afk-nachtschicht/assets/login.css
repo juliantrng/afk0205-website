@@ -1,0 +1,27 @@
+/* AFK Nachtschicht – Anmeldeseite (ersetzt LoginPress) */
+@font-face { font-family: "Oswald"; src: url("fonts/oswald.woff2") format("woff2"); font-weight: 200 700; font-display: swap; }
+@font-face { font-family: "Source Sans 3"; src: url("fonts/source-sans-3.woff2") format("woff2"); font-weight: 200 900; font-display: swap; }
+
+body.login { background: #0E0F11; color: #F2F0EA; font-family: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 16px; }
+body.login::before { content: ""; position: fixed; inset: 0 0 auto 0; height: 6px; background: #C10000; }
+#login { width: 360px; max-width: calc(100% - 32px); padding: 8vh 0 32px; }
+.login h1 a { width: 300px; max-width: 100%; height: 82px; margin: 0 auto 28px; background: url("img/logo-weiss.png") center / contain no-repeat; }
+.login form { margin-top: 0; padding: 28px 28px 32px; background: #17191C; border: 0; border-left: 6px solid #C10000; border-radius: 0; box-shadow: none; }
+.login label { color: #D9D6CF; font-size: 15px; font-weight: 600; }
+.login form .input, .login input[type="text"], .login input[type="password"], .login input[type="email"] { background: #0E0F11; border: 1px solid #3A3D42; border-radius: 4px; color: #FFFFFF; font-size: 18px; padding: 6px 12px; box-shadow: none; }
+.login form .input:focus, .login input:focus { border-color: #F9EA37; box-shadow: 0 0 0 1px #F9EA37; outline: none; }
+.login .button.wp-hide-pw { color: #A6A39C; }
+.login .button.wp-hide-pw:focus { border-color: #F9EA37; box-shadow: 0 0 0 1px #F9EA37; }
+.login input[type="checkbox"] { background: #0E0F11; border-color: #3A3D42; }
+.login input[type="checkbox"]:checked::before { filter: invert(1); }
+.wp-core-ui .button-primary { background: #C10000; border-color: #C10000; color: #FFFFFF; font-family: "Oswald", "Arial Narrow", sans-serif; font-size: 16px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; border-radius: 4px; text-shadow: none; box-shadow: none; padding: 2px 18px; min-height: 40px; }
+.wp-core-ui .button-primary:hover, .wp-core-ui .button-primary:focus { background: #8A0000; border-color: #8A0000; color: #FFFFFF; box-shadow: 0 0 0 2px #0E0F11, 0 0 0 4px #F9EA37; }
+.wp-core-ui .button-secondary, .wp-core-ui .button:not(.button-primary):not(.wp-hide-pw) { background: transparent; border-color: #3A3D42; color: #F2F0EA; }
+.login #nav, .login #backtoblog { padding: 0 0 0 6px; text-align: left; }
+.login #nav a, .login #backtoblog a, .login .privacy-policy-link { color: #A6A39C; text-decoration: none; }
+.login #nav a:hover, .login #backtoblog a:hover, .login .privacy-policy-link:hover { color: #F9EA37; }
+.login .message, .login .notice, .login .success, .login #login_error { background: #17191C; color: #F2F0EA; border-left: 4px solid #F9EA37; box-shadow: none; }
+.login #login_error { border-left-color: #C10000; }
+.login .message a, .login .notice a, .login #login_error a { color: #F9EA37; }
+.login .language-switcher { display: none; }
+.login a:focus { box-shadow: 0 0 0 2px #F9EA37; color: #F9EA37; }

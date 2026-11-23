@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AFK_NS_VERSION', '1.3.4' );
+define( 'AFK_NS_VERSION', '1.4.0' );
 define( 'AFK_NS_DIR', get_template_directory() );
 define( 'AFK_NS_URL', get_template_directory_uri() );
 
@@ -16,6 +16,7 @@ require_once AFK_NS_DIR . '/inc/customizer.php';
 require_once AFK_NS_DIR . '/inc/query.php';
 require_once AFK_NS_DIR . '/inc/meta.php';
 require_once AFK_NS_DIR . '/inc/github-updater.php';
+require_once AFK_NS_DIR . '/inc/login.php';
 
 new AFK_GitHub_Updater(
 	array(
@@ -67,6 +68,9 @@ add_action( 'after_setup_theme', 'afk_ns_content_width', 0 );
 function afk_ns_assets() {
 	wp_enqueue_style( 'afk-ns', get_stylesheet_uri(), array(), AFK_NS_VERSION );
 	wp_enqueue_script( 'afk-ns', AFK_NS_URL . '/assets/theme.js', array(), AFK_NS_VERSION, array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	if ( is_singular() ) {
+		wp_enqueue_script( 'afk-ns-lightbox', AFK_NS_URL . '/assets/lightbox.js', array(), AFK_NS_VERSION, array( 'in_footer' => true, 'strategy' => 'defer' ) );
+	}
 }
 add_action( 'wp_enqueue_scripts', 'afk_ns_assets', 20 );
 
