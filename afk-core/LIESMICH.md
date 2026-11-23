@@ -1,10 +1,16 @@
-# AFK Core – Version 0.9.0
+# AFK Core – Version 0.10.0
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.10.0
+
+- **Unwetterwarnung im Hinweisband**: Warnungen der GeoSphere Austria (früher ZAMG) für Millstatt am See, Radenthein und Bad Kleinkirchheim erscheinen automatisch – Art, Zeitraum, betroffene Gemeinden und ein kurzer Rat, Farbe nach Warnstufe (Gelb/Orange/Rot). Endet die Warnung, verschwindet das Band.
+- Hinweisband → Unwetterwarnung: ab welcher Stufe (Standard: Orange), wie viele Stunden vor Beginn, „Jetzt abrufen“, Übersicht der aktuellen Warnungen.
+- Abruf alle 30 Minuten serverseitig, Besucher verbinden sich nicht mit der GeoSphere. Ein eigener Hinweis „Allgemeine Information“ wird während einer Warnung ersetzt, eigene Hinweise zu Waldbrand, Unwetter oder Sperre bleiben stehen.
 
 ## Neu in 0.9.0
 

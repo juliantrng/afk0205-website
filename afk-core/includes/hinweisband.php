@@ -10,11 +10,21 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Aktueller Hinweis oder null.
+ * Aktueller Hinweis oder null – der händische Hinweis, ggf. ersetzt durch automatische
+ * Hinweise (z. B. Unwetterwarnung, Filter „afk_hinweis“).
  *
  * @return array|null
  */
 function afk_hinweis_get() {
+	return apply_filters( 'afk_hinweis', afk_hinweis_manuell() );
+}
+
+/**
+ * Händisch gesetzter Hinweis oder null.
+ *
+ * @return array|null
+ */
+function afk_hinweis_manuell() {
 	$o = afk_hinweis_optionen();
 	if ( empty( $o['aktiv'] ) ) {
 		return null;
@@ -83,7 +93,8 @@ function afk_hinweis_render() {
 
 	$icon = '<svg class="afk-hinweis__icon" aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17.5v.5"/></svg>';
 
-	$html  = '<div class="afk-hinweis afk-hinweis--' . esc_attr( $h['art'] ) . '" role="status" data-afk-hinweis="' . esc_attr( $id ) . '">';
+	$klassen = 'afk-hinweis afk-hinweis--' . $h['art'] . ( ! empty( $h['stufe'] ) ? ' afk-hinweis--stufe-' . (int) $h['stufe'] : '' );
+	$html    = '<div class="' . esc_attr( $klassen ) . '" role="status" data-afk-hinweis="' . esc_attr( $id ) . '">';
 	$html .= '<div class="afk-hinweis__inner">';
 	$html .= $icon;
 	$html .= '<p class="afk-hinweis__text">';

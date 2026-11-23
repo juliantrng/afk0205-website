@@ -15,6 +15,9 @@
 .afk-hinweis { --afk-h-bg: #E4E2DD; --afk-h-line: #C9C4BA; --afk-h-fg: #1B1C1E; background: var(--afk-h-bg); border-bottom: 1px solid var(--afk-h-line); color: var(--afk-h-fg); }
 .afk-hinweis--waldbrand { --afk-h-bg: #F9EA37; --afk-h-line: #D9C820; --afk-h-fg: #0E0F11; }
 .afk-hinweis--unwetter  { --afk-h-bg: #DCE8F5; --afk-h-line: #8DB0D6; --afk-h-fg: #123A63; }
+.afk-hinweis--stufe-1   { --afk-h-bg: #F9EA37; --afk-h-line: #D9C820; --afk-h-fg: #0E0F11; }
+.afk-hinweis--stufe-2   { --afk-h-bg: #F28C1E; --afk-h-line: #C86A00; --afk-h-fg: #0E0F11; }
+.afk-hinweis--stufe-3   { --afk-h-bg: #C10000; --afk-h-line: #8A0000; --afk-h-fg: #FFFFFF; }
 .afk-hinweis--sperre    { --afk-h-bg: #FFFFFF; --afk-h-line: #C10000; --afk-h-fg: #8A0000; }
 .afk-hinweis[hidden] { display: none; }
 .afk-hinweis__inner { max-width: 1280px; margin: 0 auto; padding: 10px 24px; display: flex; flex-wrap: nowrap; gap: 6px 14px; align-items: center; }
