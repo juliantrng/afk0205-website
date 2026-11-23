@@ -16,9 +16,9 @@ $afk_einsatz = afk_ns_kategorien()['einsatz'][0];
 /* ---------- Aufmacher ---------- */
 if ( $afk_auf_id ) :
 	$afk_kat  = afk_ns_kat_label( $afk_auf_id );
-	$afk_lead = has_excerpt( $afk_auf_id ) ? get_the_excerpt( $afk_auf_id ) : wp_trim_words( wp_strip_all_tags( get_post_field( 'post_content', $afk_auf_id ) ), 30, ' …' );
+	$afk_lead = has_excerpt( $afk_auf_id ) ? get_the_excerpt( $afk_auf_id ) : wp_trim_words( wp_strip_all_tags( get_post_field( 'post_content', $afk_auf_id ) ), 22, ' …' );
 	?>
-	<section class="hero" aria-label="Aktueller Bericht">
+	<section class="hero hero--start" aria-label="Aktueller Bericht">
 		<?php
 		if ( has_post_thumbnail( $afk_auf_id ) ) {
 			echo get_the_post_thumbnail( $afk_auf_id, 'afk-hero', array( 'class' => 'hero__img', 'alt' => '', 'fetchpriority' => 'high', 'loading' => 'eager' ) );

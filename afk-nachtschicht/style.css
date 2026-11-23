@@ -3,7 +3,7 @@ Theme Name:   AFK Nachtschicht
 Theme URI:    https://www.afk-millstatt-radenthein.at/
 Author:       AFK Millstatt – Radenthein, Öffentlichkeitsarbeit
 Description:  Dunkles Theme für das Abschnittsfeuerwehrkommando Millstatt – Radenthein. Arbeitet mit dem Plugin „AFK Core“ zusammen (Feuerwehren, Aufmacher, Hinweisband, Alarmierungen, Sicherheitstipps). Schriften lokal eingebunden, keine externen Dienste.
-Version:      1.3.2
+Version:      1.3.3
 Requires at least: 6.3
 Requires PHP: 7.4
 License:      GPL-2.0-or-later
@@ -153,6 +153,12 @@ button, input, select, textarea { font: inherit; }
 .hero { position: relative; display: flex; align-items: flex-end; min-height: 640px; background: var(--c-surface); overflow: hidden; }
 .hero--post { min-height: 560px; }
 .hero--ff { min-height: 480px; }
+.hero--start { min-height: 540px; }
+.hero--start .hero__box { max-width: 700px; padding: 26px 30px 28px; }
+.hero--start .hero__meta { margin-bottom: 12px; }
+.hero--start .hero__title { font-size: clamp(28px, 3.4vw, 46px); }
+.hero--start .hero__lead { margin-top: 14px; font-size: 17px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; overflow: hidden; }
+.hero--start .hero__actions { margin-top: 22px; }
 .hero--noimg { min-height: 0; padding-top: 64px; background: linear-gradient(180deg, var(--c-surface) 0%, var(--c-bg) 100%); }
 .hero__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; }
 .hero--post .hero__img, .hero--ff .hero__img { opacity: .78; }
@@ -169,6 +175,10 @@ button, input, select, textarea { font: inherit; }
 @media (max-width: 600px) { .crumbs > :nth-last-child(-n+2) { display: none; } }
 @media (max-width: 600px) {
 	.hero { min-height: 500px; }
+	.hero--start { min-height: 440px; }
+	.hero--start .hero__box { padding: 20px 18px 22px; }
+	.hero--start .hero__title { font-size: 26px; }
+	.hero--start .hero__lead { font-size: 16px; }
 	.hero--post { min-height: 460px; }
 	.hero--ff { min-height: 380px; }
 	.hero__inner { padding-bottom: 20px; }
