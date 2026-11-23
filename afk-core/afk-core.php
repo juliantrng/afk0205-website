@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       AFK Core
  * Description:       Datenstruktur und Bausteine für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein: Taxonomie „Feuerwehr“, ACF-Felder, Aufmacher, Hinweisband, Sicherheitstipps, Alarmierungen (KLFV), Datenschutz-Helfer.
- * Version:           0.8.4
+ * Version:           0.9.0
  * Requires at least: 6.3
  * Requires PHP:      7.4
  * Author:            AFK Millstatt – Radenthein
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'AFK_CORE_VERSION', '0.8.4' );
+define( 'AFK_CORE_VERSION', '0.9.0' );
 define( 'AFK_CORE_FILE', __FILE__ );
 define( 'AFK_CORE_DIR', plugin_dir_path( __FILE__ ) );
 define( 'AFK_CORE_URL', plugin_dir_url( __FILE__ ) );
@@ -29,6 +29,7 @@ require_once AFK_CORE_DIR . 'includes/datenschutz.php';
 require_once AFK_CORE_DIR . 'includes/alarmierungen.php';
 require_once AFK_CORE_DIR . 'includes/termine.php';
 require_once AFK_CORE_DIR . 'includes/abgleich.php';
+require_once AFK_CORE_DIR . 'includes/social.php';
 require_once AFK_CORE_DIR . 'includes/github-updater.php';
 
 new AFK_GitHub_Updater(

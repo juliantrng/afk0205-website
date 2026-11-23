@@ -1,10 +1,17 @@
-# AFK Core – Version 0.8.4
+# AFK Core – Version 0.9.0
 
 Plugin für die Website des Abschnittsfeuerwehrkommandos Millstatt – Radenthein.
 Es legt die Datenstruktur an (Feuerwehren, Sicherheitstipps, Felder), steuert Aufmacher und
 Hinweisband, holt die KLFV-Alarmierungen und kümmert sich um den Datenschutz bei Fotos und
 eingebetteten Inhalten. Zusammen mit dem Theme **AFK Nachtschicht** gedacht, funktioniert über
 Shortcodes aber auch mit anderen Themes.
+
+## Neu in 0.9.0
+
+- **Social Media** statt FS Poster: Beiträge einheitlich auf Telegram, Facebook und Instagram posten – mit eigener Bildvorlage (1080 × 1350, Foto + Titelkasten + Feuerwehren + Adressleiste) und Textvorlage (Art, Datum, Titel, Auszug, beteiligte Feuerwehren, Link, Hashtags).
+- Im Beitragseditor rechts der Kasten „Social Media“: Kanäle wählen, eigenen Text schreiben, Vorschau, „Jetzt posten“ für bereits veröffentlichte Beiträge. Protokoll mit Links je Kanal; jeder Kanal wird je Beitrag nur einmal bedient.
+- Gepostet wird nur unter der eingetragenen Live-Adresse – Staging-Kopien posten nie.
+- Einstellungen → Social Media, Anleitung unten unter „Social Media einrichten“.
 
 ## Neu in 0.8.4
 
@@ -165,3 +172,25 @@ Einstellungen und Inhalte bleiben bei Updates erhalten – sie liegen in der Dat
 - Updates abschalten: `define( 'AFK_UPDATE_REPO', '' );`
 
 Beim Deaktivieren gehen keine Daten verloren; der regelmäßige Abruf wird beendet.
+
+## Social Media einrichten
+
+Erst nach der Umstellung auf der echten Website einrichten und dann **FS Poster deaktivieren**, sonst wird doppelt gepostet.
+
+**Allgemein:** Einstellungen → Social Media → Live-Adresse `https://www.afk-millstatt-radenthein.at` eintragen.
+
+**Telegram**
+1. In Telegram @BotFather öffnen, `/newbot`, Namen vergeben (z. B. „AFK Millstatt-Radenthein“). Der BotFather schickt den Bot-Token.
+2. Im Kanal: Administratoren → Bot hinzufügen, Recht „Nachrichten senden“.
+3. Token und Kanal (@name) eintragen, „Verbindung prüfen“.
+
+**Facebook und Instagram**
+1. Instagram muss ein professionelles Konto sein (Business oder Creator) und mit der Facebook-Seite verknüpft (Facebook-Seite → Einstellungen → Verknüpfte Konten).
+2. Auf developers.facebook.com mit deinem Facebook-Konto eine App anlegen (Typ „Business“). Die App bleibt im Entwicklungsmodus – für eigene Seiten reicht das, solange du Admin der App und der Seite bist.
+3. Im **Graph API Explorer** die App wählen, „User Token“ mit diesen Berechtigungen erzeugen: `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `instagram_basic`, `instagram_content_publish`, `business_management`.
+4. Im **Access Token Debugger** den Token prüfen und „Extend Access Token“ (langlebiger Token).
+5. Mit dem langlebigen Token im Explorer `me/accounts` abfragen: Dort stehen ID und `access_token` der Seite. Dieser Seiten-Token läuft nicht ab.
+6. Seiten-ID und Seiten-Token eintragen, „Verbindung prüfen“ – die Instagram-Konto-ID wird dabei automatisch eingetragen.
+
+Tokens werden in der Datenbank gespeichert und nirgends angezeigt. Widerrufen: Facebook → Einstellungen → Business-Integrationen bzw. im BotFather `/revoke`.
+
