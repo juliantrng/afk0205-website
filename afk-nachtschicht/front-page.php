@@ -104,11 +104,11 @@ if ( $afk_wehren ) {
 if ( '' !== $afk_mitglieder ) {
 	$afk_stats[] = array( $afk_mitglieder, 'Mitglieder – freiwillig im Einsatz' );
 } else {
-	// Solange nicht alle Wehren ihre Mitgliederzahl eingetragen haben: Berichte des laufenden Jahres.
-	$afk_jahr   = (int) wp_date( 'Y' );
-	$afk_anzahl = ( new WP_Query( array( 'post_type' => 'post', 'year' => $afk_jahr, 'posts_per_page' => 1, 'fields' => 'ids' ) ) )->found_posts;
-	if ( $afk_anzahl ) {
-		$afk_stats[] = array( $afk_anzahl, 'Berichte im Jahr ' . $afk_jahr );
+	// Solange keine Mitgliederzahlen eingetragen sind: alle Berichte im Archiv seit dem ersten Jahr.
+	$afk_anzahl = (int) wp_count_posts( 'post' )->publish;
+	$afk_erster = get_posts( array( 'post_type' => 'post', 'posts_per_page' => 1, 'orderby' => 'date', 'order' => 'ASC', 'fields' => 'ids', 'no_found_rows' => true ) );
+	if ( $afk_anzahl && $afk_erster ) {
+		$afk_stats[] = array( number_format_i18n( $afk_anzahl ), 'Berichte seit ' . get_the_date( 'Y', $afk_erster[0] ) );
 	}
 }
 if ( $afk_stats ) :

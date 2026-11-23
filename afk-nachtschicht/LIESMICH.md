@@ -16,6 +16,10 @@ eingebunden – keine Verbindung zu Google.
 
 Das bisherige Theme (Hestia) bleibt installiert – zurückschalten geht jederzeit unter Design → Themes.
 
+## Neu in 1.3.4
+
+- Kennzahl auf der Startseite: „Berichte seit …“ (ganzes Archiv) statt „Berichte im Jahr …“, solange keine Mitgliederzahlen eingetragen sind.
+
 ## Neu in 1.3.3
 
 - Aufmacher auf der Startseite kompakter: kleinere Überschrift, schmalerer Kasten, Anrisstext höchstens drei Zeilen.
